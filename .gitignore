@@ -8,6 +8,7 @@ mvnw.cmd
 .gitattributes
 .mvn
 src/test/java
+bin
 
 
 ### STS ###
