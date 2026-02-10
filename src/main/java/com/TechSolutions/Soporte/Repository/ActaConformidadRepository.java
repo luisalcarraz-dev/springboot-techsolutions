@@ -1,5 +1,10 @@
 package com.TechSolutions.Soporte.Repository;
 
-public interface ActaConformidadRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.TechSolutions.Soporte.model.ActaConformidad;
+
+
+public interface ActaConformidadRepository extends  JpaRepository<ActaConformidad, Integer>{
 
 }

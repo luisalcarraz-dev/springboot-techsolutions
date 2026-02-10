@@ -1,5 +1,7 @@
 package com.TechSolutions.Soporte.Repository;
 
-public interface HistorialRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface HistorialRepository extends  JpaRepository<HistorialRepository, Integer>{
 
 }

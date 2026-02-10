@@ -1,5 +1,7 @@
 package com.TechSolutions.Soporte.Repository;
 
-public interface ValeSuministrosRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ValeSuministrosRepository extends  JpaRepository<ValeSuministrosRepository, Integer>{
 
 }

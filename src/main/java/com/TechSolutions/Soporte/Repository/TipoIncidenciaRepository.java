@@ -1,5 +1,7 @@
 package com.TechSolutions.Soporte.Repository;
 
-public interface TipoIncidenciaRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface TipoIncidenciaRepository extends  JpaRepository<TipoIncidenciaRepository, Integer>{
 
 }

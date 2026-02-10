@@ -1,5 +1,8 @@
 package com.TechSolutions.Soporte.Repository;
 
-public interface ClasificacionRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+
+public interface ClasificacionRepository extends  JpaRepository<ClasificacionRepository, Integer>{
 
 }

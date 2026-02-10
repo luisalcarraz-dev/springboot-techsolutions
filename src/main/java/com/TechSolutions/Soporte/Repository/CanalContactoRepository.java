@@ -1,5 +1,8 @@
 package com.TechSolutions.Soporte.Repository;
 
-public interface CanalContactoRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+
+public interface CanalContactoRepository extends  JpaRepository<CanalContactoRepository, Integer>{
 
 }

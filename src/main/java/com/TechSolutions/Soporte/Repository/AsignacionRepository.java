@@ -1,5 +1,8 @@
 package com.TechSolutions.Soporte.Repository;
 
-public interface AsignacionRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+
+public interface AsignacionRepository extends  JpaRepository<AsignacionRepository, Integer>{
 
 }

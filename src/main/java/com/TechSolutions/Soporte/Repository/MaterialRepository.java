@@ -1,5 +1,7 @@
 package com.TechSolutions.Soporte.Repository;
 
-public interface MaterialRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface MaterialRepository extends  JpaRepository<MaterialRepository, Integer>{
 
 }
