@@ -2,6 +2,8 @@ package com.TechSolutions.Soporte.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PrioridadRepository extends  JpaRepository<OrdenTrabajoRepository, Integer> {
+import com.TechSolutions.Soporte.model.OrdenTrabajo;
+
+public interface PrioridadRepository extends  JpaRepository<OrdenTrabajo, Integer> {
 
 }

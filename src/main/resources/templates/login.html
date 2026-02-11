@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión | TechSolutions</title>
+    <link rel="stylesheet" href="/login.css">
+</head>
+<body>
+
+<div class="contenedor-login">
+    <h2>Iniciar Sesión</h2>
+
+    <form action="/login" method="post" onsubmit="return validarLogin()">
+        <div class="grupo-input">
+            <label>Usuario</label>
+            <input type="text" id="usuario" name="username" placeholder="Ingrese su usuario">
+        </div>
+
+        <div class="grupo-input">
+            <label>Contraseña</label>
+            <input type="password" id="contrasena" name="password" placeholder="Ingrese su contraseña">
+        </div>
+
+        <p id="mensaje-error" class="error"></p>
+
+        <button type="submit">Ingresar</button>
+    </form>
+
+    <p class="pie">TechSolutions © 2026</p>
+</div>
+
+<script src="/login.js"></script>
+</body>
+</html>

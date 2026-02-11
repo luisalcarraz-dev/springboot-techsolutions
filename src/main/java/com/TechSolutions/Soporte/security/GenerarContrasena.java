@@ -1,11 +1,19 @@
 package com.TechSolutions.Soporte.security;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class GenerarContrasena {
 
     public static void main(String[] args) {
+
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String hash = encoder.encode("1234");
-        System.out.println(hash);
+
+        String adminHash   = encoder.encode("admin1234");
+        String soporteHash = encoder.encode("soporte1234");
+        String usuarioHash = encoder.encode("Jorge1234");
+
+        System.out.println("ADMIN:   " + adminHash);
+        System.out.println("SOPORTE: " + soporteHash);
+        System.out.println("USUARIO: " + usuarioHash);
     }
 }
