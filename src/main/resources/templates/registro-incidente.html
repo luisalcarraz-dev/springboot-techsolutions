@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Incidente | TechSolutions</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background-color: #f4f6f9;
+        }
+
+        header {
+            background-color: #1e293b;
+            color: #ffffff;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #1e293b;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .info-box {
+            background-color: #e0f2fe;
+            border-left: 5px solid #0284c7;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #075985;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input[readonly] {
+            background-color: #f3f4f6;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .actions {
+            text-align: right;
+            margin-top: 25px;
+        }
+
+        button {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            font-size: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0369a1;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    Sistema Web de Gestión de Incidencias - TechSolutions Perú S.A.C.
+</header>
+
+<div class="container">
+
+    <h2>Registro de Incidente</h2>
+
+    <div class="info-box">
+        Complete el formulario para registrar su incidencia.
+        El área de soporte técnico realizará la evaluación correspondiente.
+    </div>
+
+    <form th:action="@{/incidencias/registrar}"
+          th:object="${incidencia}"
+          method="post">
+
+        <!-- DATOS DEL CLIENTE -->
+        <div class="form-group">
+            <label>Nombre del Solicitante</label>
+            <input type="text"
+                   th:value="${usuario.nombres + ' ' + usuario.apellidos}"
+                   readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Correo Electrónico</label>
+            <input type="email"
+                   th:value="${usuario.correo}"
+                   readonly>
+        </div>
+
+        <!-- DATOS DE LA INCIDENCIA -->
+        <div class="form-group">
+            <label>Asunto</label>
+            <input type="text"
+                   th:field="*{asunto}"
+                   placeholder="Ejemplo: No puedo acceder al sistema"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label>Descripción del Problema</label>
+            <textarea th:field="*{descripcion}"
+                      placeholder="Describa detalladamente el incidente presentado..."
+                      required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Adjuntar Evidencia (opcional)</label>
+            <input type="file" name="archivo">
+        </div>
+
+        <!-- ACCIONES -->
+        <div class="actions">
+            <button type="submit">Generar Ticket</button>
+        </div>
+
+    </form>
+
+</div>
+
+<footer>
+    © 2026 TechSolutions Perú S.A.C. | Sistema de Soporte Técnico
+</footer>
+
+</body>
+</html>

@@ -2,6 +2,8 @@ package com.TechSolutions.Soporte.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface EscalamientoRepository extends  JpaRepository<EscalamientoRepository, Integer>{
+import com.TechSolutions.Soporte.model.Escalamiento;
+
+public interface EscalamientoRepository extends  JpaRepository<Escalamiento, Integer>{
 
 }
