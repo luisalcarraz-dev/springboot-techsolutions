@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.TechSolutions.Soporte.Repository.IncidenciaRepository;
+import com.TechSolutions.Soporte.model.CanalContacto;
 import com.TechSolutions.Soporte.model.EstadoIncidencia;
 import com.TechSolutions.Soporte.model.Incidencia;
 
@@ -18,9 +19,21 @@ public class IncidenciaService {
         this.incidenciaRepository = incidenciaRepository;
     }
 
+    public Incidencia buscarPorId(Integer id) {
+        return incidenciaRepository.findById(id).orElse(null);
+    }
+
     public Incidencia registrarIncidencia(Incidencia incidencia) {
 
-        // Generar código de ticket
+        //  Canal por defecto si el formulario no lo envía
+        // Requiere que exista canal_contacto con id=1 (WEB)
+        if (incidencia.getCanalContacto() == null) {
+            CanalContacto canal = new CanalContacto();
+            canal.setIdCanal(1);
+            incidencia.setCanalContacto(canal);
+        }
+
+        // Generar código de ticket único
         String codigo;
         do {
             codigo = "TCK-" + UUID.randomUUID()

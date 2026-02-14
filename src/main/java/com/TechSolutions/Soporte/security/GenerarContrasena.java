@@ -11,9 +11,11 @@ public class GenerarContrasena {
         String adminHash   = encoder.encode("admin1234");
         String soporteHash = encoder.encode("soporte1234");
         String usuarioHash = encoder.encode("Jorge1234");
+        String jefeHash = encoder.encode("jefe1234");
 
         System.out.println("ADMIN:   " + adminHash);
         System.out.println("SOPORTE: " + soporteHash);
-        System.out.println("USUARIO: " + usuarioHash);
+        System.out.println("USUARIO: " + usuarioHash);      
+        System.out.println("JEFE: " + jefeHash);
     }
 }

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bandeja Jefe de Soporte | TechSolutions</title>
+  <style>
+    body{ margin:0; font-family: Arial, Helvetica, sans-serif; background:#f4f6f9; }
+    header{ background:#1e293b; color:#fff; padding:15px 30px; font-size:18px; font-weight:bold; }
+    .wrap{ max-width:1100px; margin:26px auto; padding:0 16px; }
+    .grid{ display:grid; grid-template-columns: 1fr; gap:16px; }
+    .card{ background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+    h2{ margin:0 0 10px; color:#0f172a; }
+    h3{ margin:0 0 10px; color:#0f172a; font-size:16px; }
+    table{ width:100%; border-collapse:collapse; }
+    th,td{ text-align:left; padding:10px; border-bottom:1px solid #e2e8f0; font-size:14px; }
+    th{ color:#334155; background:#f8fafc; }
+    .badge{ display:inline-block; padding:5px 10px; border-radius:999px; border:1px solid #cbd5e1; background:#fff; font-size:12px; font-weight:700; }
+    .btn{
+      display:inline-block; padding:8px 12px; border-radius:8px;
+      border:1px solid #cbd5e1; text-decoration:none; color:#0f172a; background:#fff;
+    }
+    .btn.primary{ background:#0284c7; border-color:#0284c7; color:#fff; }
+    .row-actions{ display:flex; gap:8px; }
+    .empty{ color:#64748b; font-size:14px; padding:10px 0; }
+    .topbar{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:16px; }
+  </style>
+</head>
+<body>
+
+<header>Sistema Web de Gestión de Incidencias - Bandeja Jefe de Soporte</header>
+
+<div class="wrap">
+  <div class="topbar">
+    <h2 style="margin:0;">Bandeja de Incidencias</h2>
+    <a class="btn" th:href="@{/logout}">Salir</a>
+  </div>
+
+  <div class="grid">
+
+    <!-- ABIERTAS -->
+    <div class="card">
+      <h3>Incidencias Abiertas <span class="badge" th:text="${#lists.size(abiertas)}">0</span></h3>
+
+      <div th:if="${#lists.isEmpty(abiertas)}" class="empty">No hay incidencias abiertas.</div>
+
+      <table th:if="${!#lists.isEmpty(abiertas)}">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Código</th>
+          <th>Cliente</th>
+          <th>Asunto</th>
+          <th>Fecha</th>
+          <th>Acción</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="t : ${abiertas}">
+          <td th:text="${t.idIncidencia}">1</td>
+          <td th:text="${t.codigoTicket}">TCK-XXXX</td>
+          <td th:text="${t.cliente.nombres + ' ' + t.cliente.apellidos}">Cliente</td>
+          <td th:text="${t.asunto}">Asunto</td>
+          <td th:text="${t.fechaRegistro}">2026-02-14</td>
+          <td>
+            <div class="row-actions">
+              <a class="btn primary" th:href="@{/soporte/ticket/{id}(id=${t.idIncidencia})}">Ver</a>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- EN PROCESO -->
+    <div class="card">
+      <h3>En Proceso <span class="badge" th:text="${#lists.size(enProceso)}">0</span></h3>
+
+      <div th:if="${#lists.isEmpty(enProceso)}" class="empty">No hay incidencias en proceso.</div>
+
+      <table th:if="${!#lists.isEmpty(enProceso)}">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Código</th>
+          <th>Cliente</th>
+          <th>Asunto</th>
+          <th>Fecha</th>
+          <th>Acción</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="t : ${enProceso}">
+          <td th:text="${t.idIncidencia}">1</td>
+          <td th:text="${t.codigoTicket}">TCK-XXXX</td>
+          <td th:text="${t.cliente.nombres + ' ' + t.cliente.apellidos}">Cliente</td>
+          <td th:text="${t.asunto}">Asunto</td>
+          <td th:text="${t.fechaRegistro}">2026-02-14</td>
+          <td>
+            <a class="btn primary" th:href="@{/soporte/ticket/{id}(id=${t.idIncidencia})}">Ver</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CERRADAS -->
+    <div class="card">
+      <h3>Cerradas <span class="badge" th:text="${#lists.size(cerradas)}">0</span></h3>
+
+      <div th:if="${#lists.isEmpty(cerradas)}" class="empty">No hay incidencias cerradas.</div>
+
+      <table th:if="${!#lists.isEmpty(cerradas)}">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Código</th>
+          <th>Cliente</th>
+          <th>Asunto</th>
+          <th>Fecha</th>
+          <th>Acción</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="t : ${cerradas}">
+          <td th:text="${t.idIncidencia}">1</td>
+          <td th:text="${t.codigoTicket}">TCK-XXXX</td>
+          <td th:text="${t.cliente.nombres + ' ' + t.cliente.apellidos}">Cliente</td>
+          <td th:text="${t.asunto}">Asunto</td>
+          <td th:text="${t.fechaRegistro}">2026-02-14</td>
+          <td>
+            <a class="btn primary" th:href="@{/soporte/ticket/{id}(id=${t.idIncidencia})}">Ver</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

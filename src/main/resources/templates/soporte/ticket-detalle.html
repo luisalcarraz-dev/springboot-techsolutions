@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Detalle Ticket | TechSolutions</title>
+  <style>
+    body{ margin:0; font-family: Arial, Helvetica, sans-serif; background:#f4f6f9; }
+    header{ background:#1e293b; color:#fff; padding:15px 30px; font-size:18px; font-weight:bold; }
+    .wrap{ max-width:900px; margin:26px auto; padding:0 16px; }
+    .card{ background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+    .item{ background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; }
+    .label{ font-size:12px; color:#64748b; font-weight:700; text-transform:uppercase; margin-bottom:6px; }
+    .value{ font-size:15px; color:#0f172a; }
+    .actions{ display:flex; gap:10px; margin-top:14px; }
+    a.btn{ text-decoration:none; border:1px solid #cbd5e1; padding:9px 12px; border-radius:8px; color:#0f172a; background:#fff; }
+    a.primary{ background:#0284c7; border-color:#0284c7; color:#fff; }
+  </style>
+</head>
+<body>
+
+<header>Detalle del Ticket</header>
+
+<div class="wrap">
+  <div class="card">
+    <h2 style="margin:0 0 8px; color:#0f172a;">
+      Ticket <span th:text="${ticket.codigoTicket}">TCK-XXXX</span>
+    </h2>
+
+    <div class="grid">
+      <div class="item">
+        <div class="label">Cliente</div>
+        <div class="value" th:text="${ticket.cliente.nombres + ' ' + ticket.cliente.apellidos}">Cliente</div>
+      </div>
+
+      <div class="item">
+        <div class="label">Estado</div>
+        <div class="value" th:text="${ticket.estado.nombre}">ABIERTO</div>
+      </div>
+
+      <div class="item">
+        <div class="label">Fecha</div>
+        <div class="value" th:text="${ticket.fechaRegistro}">2026-02-14</div>
+      </div>
+
+      <div class="item">
+        <div class="label">Canal</div>
+        <div class="value" th:text="${ticket.canalContacto.nombre}">WEB</div>
+      </div>
+
+      <div class="item" style="grid-column:1/-1;">
+        <div class="label">Asunto</div>
+        <div class="value" th:text="${ticket.asunto}">Asunto</div>
+      </div>
+
+      <div class="item" style="grid-column:1/-1;">
+        <div class="label">Descripción</div>
+        <div class="value" th:text="${ticket.descripcion}">Descripción</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn" th:href="@{/soporte/home}">Volver</a>
+
+      <!-- Próximo paso: Clasificar / Asignar -->
+      <!-- <a class="btn primary" th:href="@{/soporte/clasificar/{id}(id=${ticket.idIncidencia})}">Clasificar</a> -->
+      <!-- <a class="btn primary" th:href="@{/soporte/asignar/{id}(id=${ticket.idIncidencia})}">Asignar</a> -->
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

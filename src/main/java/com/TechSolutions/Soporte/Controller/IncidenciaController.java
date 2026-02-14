@@ -1,16 +1,12 @@
 package com.TechSolutions.Soporte.Controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import com.TechSolutions.Soporte.model.Incidencia;
 import com.TechSolutions.Soporte.model.Usuario;
 import com.TechSolutions.Soporte.service.IncidenciaService;
-import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/incidencias")
@@ -28,13 +24,9 @@ public class IncidenciaController {
 
         Usuario usuario = (Usuario) session.getAttribute("usuario");
 
-        // Temporal si no hay login aún
+        // Si no hay login, manda a login (recomendado)
         if (usuario == null) {
-            usuario = new Usuario();
-            usuario.setIdUsuario(1);
-            usuario.setNombres("Juan");
-            usuario.setApellidos("Pérez");
-            usuario.setCorreo("juan.perez@techsolutions.com");
+            return "redirect:/login";
         }
 
         model.addAttribute("usuario", usuario);
@@ -43,28 +35,39 @@ public class IncidenciaController {
         return "registro-incidente";
     }
 
-    // Registrar incidencia
+    // Registrar incidencia y redirigir a la vista del ticket generado
     @PostMapping("/registrar")
-    public String registrar(@ModelAttribute Incidencia incidencia,
-                            HttpSession session) {
+    public String registrar(@ModelAttribute Incidencia incidencia, HttpSession session) {
 
         Usuario usuario = (Usuario) session.getAttribute("usuario");
-
         if (usuario == null) {
-            usuario = new Usuario();
-            usuario.setIdUsuario(1); // cliente existente
+            return "redirect:/login";
         }
 
         incidencia.setCliente(usuario);
 
-        incidenciaService.registrarIncidencia(incidencia);
+        // Guardar y recuperar el ticket con su ID
+        Incidencia guardada = incidenciaService.registrarIncidencia(incidencia);
 
-        return "redirect:/incidencias/confirmacion";
+        // Mostrar ticket generado
+        return "redirect:/incidencias/ticket/" + guardada.getIdIncidencia();
     }
 
-    // Confirmación
-    @GetMapping("/confirmacion")
-    public String confirmacion() {
-        return "confirmacion-ticket";
+    // Mostrar ticket por id
+    @GetMapping("/ticket/{id}")
+    public String verTicket(@PathVariable Integer id, Model model, HttpSession session) {
+
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        Incidencia ticket = incidenciaService.buscarPorId(id);
+        if (ticket == null) {
+            return "redirect:/incidencias/nuevo";
+        }
+
+        model.addAttribute("ticket", ticket);
+        return "ticket-generado";
     }
 }
