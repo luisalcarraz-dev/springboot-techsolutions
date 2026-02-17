@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle del Ticket | Cliente</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background-color: #f1f5f9;
+        }
+
+        header {
+            background-color: #020617;
+            color: white;
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-left span {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .header-right a {
+            color: white;
+            text-decoration: none;
+            background: #475569;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #020617;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            margin-top: 25px;
+            color: #1e293b;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .info-box {
+            background-color: #f8fafc;
+            padding: 12px;
+            border-left: 5px solid #2563eb;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .info-box span {
+            display: block;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .abierto { background-color: #2563eb; }
+        .proceso { background-color: #f59e0b; }
+        .atrasado { background-color: #dc2626; }
+        .cerrado { background-color: #16a34a; }
+
+        .block {
+            background-color: #f8fafc;
+            border-left: 5px solid #64748b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            white-space: pre-line;
+        }
+
+        .tech {
+            border-left-color: #2563eb;
+            background-color: #eff6ff;
+        }
+
+        .solution {
+            border-left-color: #16a34a;
+            background-color: #ecfdf5;
+        }
+
+        .actions {
+            text-align: right;
+            margin-top: 25px;
+        }
+
+        .btn {
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary {
+            background-color: #475569;
+        }
+
+        .btn-ok {
+            background-color: #16a34a;
+        }
+
+        .empty-message {
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 13px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-left">
+        Detalle del Ticket<br>
+        <span th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Ana Torres</span>
+    </div>
+    <div class="header-right">
+        <a th:href="@{/cliente/dashboard}">← Volver al Dashboard</a>
+    </div>
+</header>
+
+<div class="container">
+    <h2>Información del Ticket</h2>
+
+    <!-- Fila 1: Ticket, Fecha, Estado -->
+    <div class="info-grid">
+        <div class="info-box">
+            <span>N° Ticket</span>
+            <span th:text="${ticket.codigoTicket}">TCK-000160</span>
+        </div>
+        <div class="info-box">
+            <span>Fecha Registro</span>
+            <span th:text="${#temporals.format(ticket.fechaRegistro, 'dd/MM/yyyy')}">06/02/2026</span>
+        </div>
+        <div class="info-box">
+            <span>Estado</span>
+            <span class="status" 
+                  th:classappend="${ticket.estado.nombre == 'ABIERTO' ? 'abierto' : 
+                                   (ticket.estado.nombre == 'EN_PROCESO' ? 'proceso' : 
+                                   (ticket.fechaRegistro.isBefore(T(java.time.LocalDate).now().minusDays(2)) ? 'atrasado' : 
+                                   'cerrado'))}"
+                  th:text="${ticket.estado.nombre == 'ABIERTO' ? 'ABIERTO' : 
+                            (ticket.estado.nombre == 'EN_PROCESO' ? 'EN PROCESO' : 
+                            (ticket.fechaRegistro.isBefore(T(java.time.LocalDate).now().minusDays(2)) ? 'ATRASADO' : 
+                            'CERRADO'))}">
+                ATRASADO
+            </span>
+        </div>
+    </div>
+
+    <!-- Fila 2: Prioridad, Técnico, Área -->
+    <div class="info-grid">
+        <div class="info-box">
+            <span>Prioridad</span>
+            <span th:text="${ticket.clasificacion != null ? ticket.clasificacion.prioridad.nombre : 'Sin asignar'}">
+                ALTA
+            </span>
+        </div>
+        <div class="info-box">
+            <span>Técnico Asignado</span>
+            <span th:if="${ticket.asignacion != null and ticket.asignacion.activa}" 
+                  th:text="${ticket.asignacion.tecnico.nombres + ' ' + ticket.asignacion.tecnico.apellidos}">
+                María Torres
+            </span>
+            <span th:if="${ticket.asignacion == null or !ticket.asignacion.activa}">
+                Sin asignar
+            </span>
+        </div>
+        <div class="info-box">
+            <span>Área</span>
+            <span th:text="${ticket.cliente.rol.nombre}">Logística</span>
+        </div>
+    </div>
+
+    <h3>Descripción del Incidente</h3>
+    <div class="block" th:text="${ticket.descripcion}">
+        El equipo no reconoce la impresora de red desde el día de ayer.
+    </div>
+
+    <h3>Avances del Técnico</h3>
+    <div class="block tech" th:if="${ticket.historial != null and !ticket.historial.empty}">
+        <div th:each="evento : ${ticket.historial}" 
+             th:if="${evento.tipoEvento == 'AVANCE' or evento.tipoEvento == 'CAMBIO_ESTADO'}"
+             th:text="${evento.detalle}">
+            Se revisó la configuración de red...
+        </div>
+    </div>
+    <div class="block tech empty-message" th:if="${ticket.historial == null or ticket.historial.empty}">
+        No hay avances registrados aún.
+    </div>
+
+    <h3>Solución Aplicada</h3>
+    <div class="block solution" th:if="${ticket.estado.nombre == 'CERRADO'}">
+        <!-- Aquí puedes mostrar la solución de la orden de trabajo o del último avance -->
+        <span th:if="${ticket.ordenTrabajo != null}" th:text="${ticket.ordenTrabajo.actividades}">
+            Se corrigió la configuración IP...
+        </span>
+        <span th:if="${ticket.ordenTrabajo == null}">
+            El ticket ha sido cerrado. Para más detalles, contacte con soporte.
+        </span>
+    </div>
+    <div class="block solution empty-message" th:if="${ticket.estado.nombre != 'CERRADO'}">
+        El ticket aún no ha sido cerrado.
+    </div>
+
+    <!-- Botón de conformidad si está cerrado -->
+    <div class="actions" th:if="${ticket.estado.nombre == 'CERRADO'}">
+        <a th:href="@{/cliente/conformidad/{id}(id=${ticket.idIncidencia})}" class="btn btn-ok">
+            Registrar Conformidad
+        </a>
+    </div>
+</div>
+
+<footer>
+    © 2026 TechSolutions Perú S.A.C. | Detalle del Ticket
+</footer>
+
+</body>
+</html>

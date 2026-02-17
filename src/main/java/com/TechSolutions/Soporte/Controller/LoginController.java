@@ -41,7 +41,7 @@ public class LoginController {
                 case "TECNICO":
                     return "redirect:/tecnico/home";
                 case "CLIENTE":
-                    return "redirect:/registro-incidente";
+                	return "redirect:/cliente/dashboard";
                 case "JEFE_SOPORTE":
                     return "redirect:/soporte/home";
                 default:

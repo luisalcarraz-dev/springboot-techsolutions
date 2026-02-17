@@ -1,7 +1,7 @@
 package com.TechSolutions.Soporte.model;
 
 import java.time.LocalDate;
-
+import java.util.List;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -41,4 +41,19 @@ public class Incidencia {
 
     @Column(name = "fecha_registro", nullable = false)
     private LocalDate fechaRegistro;
+    
+ // Relación con Clasificación (opcional, puede ser null si no se ha clasificado)
+    @OneToOne(mappedBy = "incidencia", cascade = CascadeType.ALL)
+    private Clasificacion clasificacion;
+
+    // Relación con Asignación (opcional)
+    @OneToOne(mappedBy = "incidencia", cascade = CascadeType.ALL)
+    private Asignacion asignacion;
+
+    // Relación con Orden de Trabajo (a través de Asignacion)
+    // Esto es más complejo, lo podemos manejar luego
+
+    // Relación con Historial
+    @OneToMany(mappedBy = "incidencia", cascade = CascadeType.ALL)
+    private List<Historial> historial;
 }

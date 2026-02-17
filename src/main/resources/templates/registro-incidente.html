@@ -77,11 +77,29 @@
         }
 
         .actions {
-            text-align: right;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
             margin-top: 25px;
         }
 
-        button {
+        .btn-cancel {
+            background-color: #dc2626;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            font-size: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-cancel:hover {
+            background-color: #b91c1c;
+        }
+
+        .btn-submit {
             background-color: #0284c7;
             color: white;
             border: none;
@@ -91,7 +109,7 @@
             cursor: pointer;
         }
 
-        button:hover {
+        .btn-submit:hover {
             background-color: #0369a1;
         }
 
@@ -161,7 +179,8 @@
 
         <!-- ACCIONES -->
         <div class="actions">
-            <button type="submit">Generar Ticket</button>
+            <a th:href="@{/cliente/dashboard}" class="btn-cancel">Cancelar</a>
+            <button type="submit" class="btn-submit">Generar Ticket</button>
         </div>
 
     </form>
