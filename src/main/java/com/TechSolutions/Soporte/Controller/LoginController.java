@@ -1,6 +1,6 @@
+// src/main/java/com/TechSolutions/Soporte/Controller/LoginController.java
 package com.TechSolutions.Soporte.Controller;
 
-import com.TechSolutions.Soporte.model.Incidencia;
 import com.TechSolutions.Soporte.model.Usuario;
 import com.TechSolutions.Soporte.service.LoginService;
 import jakarta.servlet.http.HttpSession;
@@ -17,7 +17,7 @@ public class LoginController {
 
     @GetMapping("/login")
     public String login() {
-        return "login";
+        return "login"; // Nombre de tu plantilla Thymeleaf para el login
     }
 
     @PostMapping("/login")
@@ -30,14 +30,10 @@ public class LoginController {
         Usuario usuario = loginService.validarLogin(username, password);
 
         if (usuario != null) {
-
             session.setAttribute("usuario", usuario);
             session.setAttribute("rol", usuario.getRol().getNombre());
 
-
             switch (usuario.getRol().getNombre()) {
-                case "ADMIN":
-                    return "redirect:/admin/home";
                 case "TECNICO":
                     return "redirect:/tecnico/home";
                 case "CLIENTE":
@@ -49,35 +45,14 @@ public class LoginController {
             }
         }
 
-
         model.addAttribute("error", "Usuario o contraseña incorrectos");
         return "login";
     }
-
-
-    @GetMapping("/registro-incidente")
-    public String mostrarRegistro(HttpSession session, Model model) {
-
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
-
-        if (usuario == null) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("usuario", usuario);
-        model.addAttribute("incidencia", new Incidencia());
-
-        return "registro-incidente";
-    }
-
-    
-
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/login";
     }
-    
-    
 }
+

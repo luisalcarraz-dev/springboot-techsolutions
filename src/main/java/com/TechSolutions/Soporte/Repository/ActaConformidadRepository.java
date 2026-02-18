@@ -1,10 +1,12 @@
 package com.TechSolutions.Soporte.Repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.TechSolutions.Soporte.model.ActaConformidad;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 
-public interface ActaConformidadRepository extends  JpaRepository<ActaConformidad, Integer>{
-
+@Repository
+public interface ActaConformidadRepository extends JpaRepository<ActaConformidad, Integer> {
+    Optional<ActaConformidad> findByIncidencia_IdIncidencia(Integer idIncidencia);
 }

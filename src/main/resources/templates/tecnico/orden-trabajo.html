@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Orden de Trabajo | Técnico</title>
+    <!-- Aquí puedes incluir tus CSS si los tienes -->
+	<style>
+	        * {
+	            box-sizing: border-box;
+	            font-family: Arial, Helvetica, sans-serif;
+	        }
+
+	        body {
+	            margin: 0;
+	            background-color: #f1f5f9;
+	        }
+
+	        header {
+	            background-color: #020617;
+	            color: white;
+	            padding: 16px 30px;
+	            font-size: 20px;
+	            font-weight: bold;
+	        }
+
+	        .container {
+	            max-width: 1100px;
+	            margin: 30px auto;
+	            background-color: white;
+	            padding: 25px;
+	            border-radius: 8px;
+	            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+	        }
+
+	        h2 {
+	            margin-top: 0;
+	            color: #020617;
+	            border-bottom: 2px solid #e5e7eb;
+	            padding-bottom: 8px;
+	        }
+
+	        h3 {
+	            margin-top: 30px;
+	            color: #1e293b;
+	        }
+
+	        .info-grid {
+	            display: grid;
+	            grid-template-columns: repeat(3, 1fr);
+	            gap: 15px;
+	            margin-bottom: 25px;
+	        }
+
+	        .info-box {
+	            background-color: #f8fafc;
+	            padding: 12px;
+	            border-left: 5px solid #2563eb;
+	            border-radius: 6px;
+	            font-size: 14px;
+	        }
+
+	        .info-box span {
+	            display: block;
+	            font-weight: bold;
+	            color: #1e293b;
+	        }
+
+	        .status {
+	            display: inline-block;
+	            padding: 5px 12px;
+	            border-radius: 12px;
+	            font-size: 12px;
+	            font-weight: bold;
+	            color: white;
+	            background-color: #2563eb;
+	        }
+
+	        .priority {
+	            font-weight: bold;
+	            color: #dc2626;
+	        }
+
+	        /* Descripción del cliente */
+	        .client-description {
+	            background-color: #fefce8;
+	            border-left: 5px solid #eab308;
+	            padding: 15px;
+	            border-radius: 6px;
+	            font-size: 14px;
+	            color: #713f12;
+	            margin-bottom: 25px;
+	        }
+
+	        .client-description strong {
+	            display: block;
+	            margin-bottom: 8px;
+	            color: #854d0e;
+	        }
+
+	        .form-group {
+	            margin-bottom: 18px;
+	        }
+
+	        label {
+	            display: block;
+	            font-weight: bold;
+	            margin-bottom: 6px;
+	            color: #374151;
+	        }
+
+	        textarea, select {
+	            width: 100%;
+	            padding: 10px;
+	            border: 1px solid #cbd5f5;
+	            border-radius: 6px;
+	            font-size: 14px;
+	        }
+
+	        textarea {
+	            min-height: 110px;
+	            resize: vertical;
+	        }
+
+	        .actions {
+	            margin-top: 30px;
+	            text-align: right;
+	        }
+
+	        .btn {
+	            border: none;
+	            padding: 12px 22px;
+	            font-size: 14px;
+	            border-radius: 6px;
+	            cursor: pointer;
+	            margin-left: 10px;
+	        }
+
+	        .btn-save {
+	            background-color: #0f766e;
+	            color: white;
+	        }
+
+	        .btn-save:hover {
+	            background-color: #115e59;
+	        }
+
+	        .btn-close {
+	            background-color: #dc2626;
+	            color: white;
+	        }
+
+	        .btn-close:hover {
+	            background-color: #b91c1c;
+	        }
+
+	        footer {
+	            margin-top: 25px;
+	            text-align: center;
+	            font-size: 13px;
+	            color: #6b7280;
+	        }
+	    </style>
+</head>
+<body>
+
+<header>
+    Panel del Técnico – Orden de Trabajo
+    <div style="float: right; margin-right: 20px;">
+        <span th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Nombre Técnico</span>
+        <a th:href="@{/logout}" class="logout" style="margin-left: 15px;">Cerrar Sesión</a>
+    </div>
+</header>
+
+<div class="container">
+    <div>
+        <h2>Detalle del Ticket <span th:text="${ticket.codigoTicket}">TCK-XXXX</span></h2>
+        <!-- El botón de Vale de Suministro lo implementaremos más adelante -->
+        <button type="button" class="btn btn-save">Vale de Suministro</button>
+    </div>
+
+    <!-- Información general del Ticket -->
+    <div class="info-grid">
+        <div class="info-box">
+            <span>N° Ticket</span>
+            <span th:text="${ticket.codigoTicket}">TCK-000154</span>
+        </div>
+        <div class="info-box">
+            <span>Estado</span>
+            <span class="status" th:text="${ticket.estado.nombre}">EN ATENCIÓN</span>
+        </div>
+        <div class="info-box">
+            <span>Prioridad</span>
+            <!-- Asumiendo que la prioridad viene de Clasificacion -->
+            <span class="priority" th:text="${ticket.clasificacion != null ? ticket.clasificacion.prioridad.nombre : 'N/A'}">ALTA</span>
+        </div>
+        <div class="info-box">
+            <span>Solicitante</span>
+            <span th:text="${ticket.cliente.nombres + ' ' + ticket.cliente.apellidos}">Juan Pérez</span>
+        </div>
+        <div class="info-box">
+            <span>Correo Solicitante</span>
+            <span th:text="${ticket.cliente.correo}">juan.perez@example.com</span>
+        </div>
+        <div class="info-box">
+            <span>Tipo Incidencia</span>
+            <!-- Asumiendo que el tipo viene de Clasificacion -->
+            <span th:text="${ticket.clasificacion != null ? ticket.clasificacion.tipo.nombre : 'N/A'}">Software</span>
+        </div>
+    </div>
+
+    <!-- Descripción del cliente -->
+    <h3>Descripción del Incidente</h3>
+    <div class="client-description" th:text="${ticket.descripcion}">
+        <strong>Problema reportado:</strong>
+        El sistema contable no permite registrar comprobantes de pago desde el día de ayer.
+        Al intentar guardar la información aparece un mensaje de error inesperado y la aplicación se cierra automáticamente.
+    </div>
+
+    <!-- Formulario de Orden de Trabajo -->
+    <h3>Orden de Trabajo</h3>
+    <!-- El formulario enviará los datos a un endpoint POST del TecnicoController -->
+    <form th:action="@{/tecnico/ticket/{id}/guardar-avance(id=${ticket.idIncidencia})}" method="post" th:object="${ordenTrabajo}">
+        <div class="form-group">
+            <label for="diagnostico">Diagnóstico</label>
+            <textarea id="diagnostico" th:field="*{actividades}" placeholder="Describa la causa del problema identificado..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="actividades">Actividades Realizadas</label>
+            <textarea id="actividades" th:field="*{herramientas}" placeholder="Detalle las actividades realizadas durante la atención..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="accionesCorrectivas">Acciones Correctivas Aplicadas</label>
+            <textarea id="accionesCorrectivas" th:field="*{observaciones}" placeholder="Indique la solución implementada..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="estadoTicket">Cambiar Estado del Ticket</label>
+            <select id="estadoTicket" name="nuevoEstadoId">
+                <!-- Opciones de estado cargadas dinámicamente -->
+                <option th:each="estado : ${estadosDisponibles}"
+                        th:value="${estado.idEstado}"
+                        th:text="${estado.nombre}"
+                        th:selected="${estado.idEstado == ticket.estado.idEstado}"></option>
+            </select>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-save">Guardar Avance</button>
+            <!-- El botón de solicitar cierre podría ser otro submit a otro endpoint o un campo oculto -->
+            <button type="submit" name="solicitarCierre" value="true" class="btn btn-close">Solicitar Cierre</button>
+        </div>
+    </form>
+</div>
+
+<footer>
+    © 2026 TechSolutions Perú S.A.C. | Orden de Trabajo
+</footer>
+
+</body>
+</html>

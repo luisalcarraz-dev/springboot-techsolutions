@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Acta de Conformidad | Cliente</title>
+    <!-- Aquí puedes incluir tus CSS si los tienes -->
+	<style>
+	        * {
+	            box-sizing: border-box;
+	            font-family: Arial, Helvetica, sans-serif;
+	        }
+
+	        body {
+	            margin: 0;
+	            background-color: #f1f5f9;
+	        }
+
+	        header {
+	            background-color: #020617;
+	            color: white;
+	            padding: 18px 30px;
+	            font-size: 20px;
+	            font-weight: bold;
+	        }
+
+	        .container {
+	            max-width: 900px;
+	            margin: 30px auto;
+	            background-color: white;
+	            padding: 25px;
+	            border-radius: 8px;
+	            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+	        }
+
+	        h2 {
+	            margin-top: 0;
+	            border-bottom: 2px solid #e5e7eb;
+	            padding-bottom: 8px;
+	            color: #020617;
+	        }
+
+	        h3 {
+	            margin-top: 25px;
+	            color: #1e293b;
+	        }
+
+	        .info-grid {
+	            display: grid;
+	            grid-template-columns: repeat(3, 1fr);
+	            gap: 15px;
+	            margin-bottom: 25px;
+	        }
+
+	        .info-box {
+	            background-color: #f8fafc;
+	            padding: 12px;
+	            border-left: 5px solid #2563eb;
+	            border-radius: 6px;
+	            font-size: 14px;
+	        }
+
+	        .info-box span {
+	            display: block;
+	            font-weight: bold;
+	            color: #1e293b;
+	        }
+
+	        .block {
+	            background-color: #f8fafc;
+	            border-left: 5px solid #16a34a;
+	            padding: 15px;
+	            border-radius: 6px;
+	            font-size: 14px;
+	            margin-bottom: 20px;
+	        }
+
+	        .confirm-box {
+	            background-color: #ecfdf5;
+	            border-left: 5px solid #16a34a;
+	            padding: 18px;
+	            border-radius: 6px;
+	            margin-top: 25px;
+	            font-size: 14px;
+	        }
+
+	        textarea {
+	            width: 100%;
+	            padding: 10px;
+	            border: 1px solid #cbd5f5;
+	            border-radius: 6px;
+	            margin-top: 10px;
+	            font-size: 14px;
+	        }
+
+	        .actions {
+	            text-align: right;
+	            margin-top: 25px;
+	        }
+
+	        .btn {
+	            padding: 12px 24px;
+	            font-size: 14px;
+	            border-radius: 6px;
+	            border: none;
+	            cursor: pointer;
+	            color: white;
+	            margin-left: 10px;
+	        }
+
+	        .btn-confirm {
+	            background-color: #16a34a;
+	        }
+
+	        .btn-reject {
+	            background-color: #dc2626;
+	        }
+
+	        footer {
+	            margin-top: 25px;
+	            text-align: center;
+	            font-size: 13px;
+	            color: #6b7280;
+	        }
+	    </style>
+</head>
+
+<body>
+
+<header>
+    Acta de Conformidad de Atención
+</header>
+
+<div class="container">
+    <h2>Datos del Ticket</h2>
+
+    <div class="info-grid">
+        <div class="info-box">
+            <span>N° Ticket</span>
+            <span th:text="${ticket.codigoTicket}">TCK-000160</span>
+        </div>
+        <div class="info-box">
+            <span>Fecha de Cierre</span>
+            <span th:text="${#temporals.format(ticket.fechaRegistro, 'dd/MM/yyyy')}">07/02/2026</span>
+        </div>
+        <div class="info-box">
+            <span>Estado</span>
+            <span th:text="${ticket.estado.nombre}">Pendiente de Conformidad</span>
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-box">
+            <span>Cliente</span>
+            <span th:text="${ticket.cliente.nombres + ' ' + ticket.cliente.apellidos}">Ana Torres</span>
+        </div>
+        <!-- Asumo que 'Area' no está directamente en Incidencia, si lo está, ajusta -->
+        <div class="info-box">
+            <span>Área</span>
+            <span>N/A</span> <!-- Placeholder, ajustar si tienes el dato -->
+        </div>
+        <div class="info-box">
+            <span>Técnico</span>
+            <!-- Asumo que el técnico está en la Asignacion, si existe -->
+            <span th:if="${ticket.asignacion != null}" th:text="${ticket.asignacion.tecnico.nombres + ' ' + ticket.asignacion.tecnico.apellidos}">María Torres</span>
+            <span th:unless="${ticket.asignacion != null}">No asignado</span>
+        </div>
+    </div>
+
+    <h3>Descripción del Incidente</h3>
+    <div class="block" th:text="${ticket.descripcion}">
+        El equipo no reconocía la impresora de red y no permitía
+        imprimir documentos de trabajo.
+    </div>
+
+    <h3>Solución Aplicada</h3>
+    <div class="block">
+        <!-- Asumo que la solución está en OrdenTrabajo, si existe -->
+        <span th:if="${ticket.asignacion != null and ticket.asignacion.ordenTrabajo != null}" th:text="${ticket.asignacion.ordenTrabajo.actividades}">
+            Se corrigió la configuración de red, se reinstalaron los
+            controladores de la impresora y se validó la impresión
+            correcta desde el equipo del usuario.
+        </span>
+        <span th:unless="${ticket.asignacion != null and ticket.asignacion.ordenTrabajo != null}">Solución no registrada aún.</span>
+    </div>
+
+    <!-- Formulario para la conformidad -->
+    <form th:action="@{/cliente/conformidad/{id}(id=${ticket.idIncidencia})}" method="post">
+        <h3>Comentario del Cliente (opcional)</h3>
+        <textarea name="comentario" placeholder="Puede dejar un comentario sobre la atención recibida..."></textarea>
+
+        <div class="confirm-box">
+            <strong>Confirmación de Conformidad</strong><br><br>
+            Al confirmar, usted declara que la incidencia ha sido
+            solucionada satisfactoriamente y autoriza el cierre
+            definitivo del ticket.
+        </div>
+
+        <div class="actions">
+            <a th:href="@{/cliente/dashboard}" class="btn btn-reject">Volver</a>
+            <!-- Botón "No Conforme" -->
+            <button type="submit" name="conforme" value="false" class="btn btn-reject">No Conforme</button>
+            <!-- Botón "Confirmar Conformidad" -->
+            <button type="submit" name="conforme" value="true" class="btn btn-confirm">Confirmar Conformidad</button>
+        </div>
+    </form>
+
+</div>
+
+<footer>
+    © 2026 TechSolutions Perú S.A.C. | Sistema de Gestión de Incidencias
+</footer>
+
+</body>
+</html>

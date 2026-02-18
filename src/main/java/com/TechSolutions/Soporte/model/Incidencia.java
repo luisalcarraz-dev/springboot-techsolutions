@@ -35,7 +35,7 @@ public class Incidencia {
     private String descripcion;
 
     //Estado de incidencia
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)// <-- Asegura que el estado se carga inmediatamente
     @JoinColumn(name = "id_estado", nullable = false)
     private EstadoIncidencia estado;
 
