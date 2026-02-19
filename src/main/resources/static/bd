@@ -1,0 +1,35 @@
+
+INSERT INTO rol (nombre) VALUES ('JEFE_SOPORTE');
+
+select * from rol;
+
+INSERT INTO usuario (apellidos, correo, dni, nombres, password_hash, username, id_rol)
+
+VALUES
+
+('Lopez', 'jefe@techsolutions.com', '44556677', 'Carlos',
+
+'$2a$10$Qfqp08KZBmrynA3DeqxR0eyYWJHOZJESuY2HcU45okYa.ufrIzwrC',
+
+'jefe',
+
+(SELECT id_rol FROM rol WHERE nombre='JEFE_SOPORTE'));
+
+--joan inserts
+-- Insertar Tipos de Incidencia (si no existen ya)
+INSERT INTO tipo_incidencia (nombre) VALUES
+('Fallo de Hardware'),
+('Problema de Software'),
+('Consulta Técnica'),
+('Problema de Red'),
+('Requerimiento de Servicio')
+ON DUPLICATE KEY UPDATE nombre=VALUES(nombre); -- Esto actualizará si ya existen los nombres
+
+-- Insertar Prioridades (si no existen ya)
+INSERT INTO prioridad (nombre, orden_prioridad) VALUES
+('Baja', 1),
+('Media', 2),
+('Alta', 3),
+('Crítica', 4)
+ON DUPLICATE KEY UPDATE nombre=VALUES(nombre), orden_prioridad=VALUES(orden_prioridad); -- Esto actualizará si ya existen los nombres
+

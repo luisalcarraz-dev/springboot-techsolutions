@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Asignar Incidencia | Jefe de Soporte</title>
+    <!-- Aquí puedes incluir tus CSS si los tienes -->
+	<style>
+	    * {
+	        box-sizing: border-box;
+	        font-family: Arial, Helvetica, sans-serif;
+	    }
+
+	    body {
+	        margin: 0;
+	        background-color: #f1f5f9;
+	    }
+
+	    header {
+	        background-color: #0f172a;
+	        color: #ffffff;
+	        padding: 16px 30px;
+	        font-size: 20px;
+	        font-weight: bold;
+	    }
+
+	    .container {
+	        max-width: 1100px;
+	        margin: 35px auto;
+	        padding: 25px;
+	        background-color: #ffffff;
+	        border-radius: 8px;
+	        box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+	    }
+
+	    h2 {
+	        margin-top: 0;
+	        color: #0f172a;
+	        border-bottom: 2px solid #e5e7eb;
+	        padding-bottom: 10px;
+	    }
+
+	    .ticket-info {
+	        display: grid;
+	        grid-template-columns: repeat(3, 1fr);
+	        gap: 15px;
+	        margin-bottom: 25px;
+	    }
+
+	    .info-box {
+	        background-color: #f8fafc;
+	        border-left: 5px solid #3b82f6;
+	        padding: 12px;
+	        border-radius: 6px;
+	        font-size: 14px;
+	    }
+
+	    .info-box span {
+	        display: block;
+	        font-weight: bold;
+	        color: #1e293b;
+	    }
+
+	    .status {
+	        display: inline-block;
+	        padding: 5px 10px;
+	        border-radius: 12px;
+	        font-size: 12px;
+	        font-weight: bold;
+	        color: #fff;
+	        background-color: #f97316;
+	    }
+
+	    form {
+	        margin-top: 25px;
+	    }
+
+	    .form-grid {
+	        display: grid;
+	        grid-template-columns: repeat(2, 1fr);
+	        gap: 20px;
+	    }
+
+	    .form-group {
+	        margin-bottom: 15px;
+	    }
+
+	    label {
+	        display: block;
+	        font-weight: bold;
+	        margin-bottom: 6px;
+	        color: #374151;
+	    }
+
+	    select, input {
+	        width: 100%;
+	        padding: 10px;
+	        border: 1px solid #cbd5f5;
+	        border-radius: 5px;
+	        font-size: 14px;
+	    }
+
+	    .priority-alta {
+	        color: #dc2626;
+	        font-weight: bold;
+	    }
+
+	    .priority-media {
+	        color: #ca8a04;
+	        font-weight: bold;
+	    }
+
+	    .priority-baja {
+	        color: #16a34a;
+	        font-weight: bold;
+	    }
+
+	    .actions {
+	        text-align: right;
+	        margin-top: 30px;
+	    }
+
+	    button {
+	        background-color: #2563eb;
+	        color: white;
+	        border: none;
+	        padding: 12px 24px;
+	        font-size: 15px;
+	        border-radius: 6px;
+	        cursor: pointer;
+	    }
+
+	    button:hover {
+	        background-color: #1d4ed8;
+	    }
+
+	    footer {
+	        margin-top: 25px;
+	        text-align: center;
+	        font-size: 13px;
+	        color: #6b7280;
+	    }
+	</style>
+</head>
+<body>
+
+<header>
+    Panel del Jefe de Soporte - Gestión de Incidencias
+    <div style="float: right; margin-right: 20px;">
+        <span th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Nombre Jefe</span>
+        <a th:href="@{/logout}" class="logout" style="margin-left: 15px;">Cerrar Sesión</a>
+    </div>
+</header>
+
+<div class="container">
+    <h2>Detalle del Ticket</h2>
+
+    <!-- Información del Ticket -->
+    <div class="ticket-info">
+        <div class="info-box">
+            <span>N° Ticket</span>
+            <span th:text="${ticket.codigoTicket}">TCK-000154</span>
+        </div>
+        <div class="info-box">
+            <span>Fecha y Hora</span>
+            <span th:text="${#temporals.format(ticket.fechaRegistro, 'dd/MM/yyyy - HH:mm')}">06/02/2026 - 09:45</span>
+        </div>
+        <div class="info-box">
+            <span>Estado</span>
+            <span class="status" th:text="${ticket.estado.nombre}">ABIERTO</span>
+        </div>
+        <div class="info-box">
+            <span>Solicitante</span>
+            <span th:text="${ticket.cliente.nombres + ' ' + ticket.cliente.apellidos}">Juan Pérez</span>
+        </div>
+        <div class="info-box">
+            <span>Correo Solicitante</span>
+            <span th:text="${ticket.cliente.correo}">juan.perez@example.com</span>
+        </div>
+        <div class="info-box">
+            <span>Tipo Reportado (Inicial)</span>
+            <!-- Si la incidencia ya tiene una clasificación, la mostramos, sino N/A -->
+            <span th:text="${ticket.clasificacion != null ? ticket.clasificacion.tipo.nombre : 'N/A'}">Software</span>
+        </div>
+    </div>
+
+    <h3>Descripción del Incidente</h3>
+    <div class="client-description" th:text="${ticket.descripcion}">
+        El sistema contable no permite registrar comprobantes de pago desde el día de ayer.
+    </div>
+
+    <h2>Clasificación y Asignación</h2>
+
+    <form th:action="@{/soporte/ticket/{id}/asignar(id=${ticket.idIncidencia})}" method="post">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="tipoIncidencia">Clasificación de Incidencia</label>
+                <select id="tipoIncidencia" name="tipoId" required>
+                    <option value="">Seleccione</option>
+                    <option th:each="tipo : ${tiposIncidencia}"
+                            th:value="${tipo.idTipo}"
+                            th:text="${tipo.nombre}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="prioridad">Prioridad</label>
+                <select id="prioridad" name="prioridadId" required>
+                    <option value="">Seleccione</option>
+                    <option th:each="prio : ${prioridades}"
+                            th:value="${prio.idPrioridad}"
+                            th:text="${prio.nombre}"
+                            th:classappend="${prio.nombre == 'Alta' ? 'priority-alta' : (prio.nombre == 'Media' ? 'priority-media' : 'priority-baja')}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="tiempoObjetivo">Tiempo Objetivo de Atención (Horas)</label>
+                <input type="number" id="tiempoObjetivo" name="tiempoObjetivoHoras" placeholder="Ej: 4" min="1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tecnicoAsignado">Técnico Asignado</label>
+                <select id="tecnicoAsignado" name="tecnicoId" required>
+                    <option value="">Seleccione Técnico</option>
+                    <option th:each="tecnico : ${tecnicosDisponibles}"
+                            th:value="${tecnico.idUsuario}"
+                            th:text="${tecnico.nombres + ' ' + tecnico.apellidos}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="submit">Asignar Incidencia</button>
+            <a th:href="@{/soporte/home}" class="btn btn-cancel">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<footer>
+    © 2026 TechSolutions Perú S.A.C. | Módulo Jefe de Soporte
+</footer>
+
+</body>
+</html>

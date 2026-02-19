@@ -1,142 +1,245 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8" />
-  <title>Bandeja Jefe de Soporte | TechSolutions</title>
-  <style>
-    body{ margin:0; font-family: Arial, Helvetica, sans-serif; background:#f4f6f9; }
-    header{ background:#1e293b; color:#fff; padding:15px 30px; font-size:18px; font-weight:bold; }
-    .wrap{ max-width:1100px; margin:26px auto; padding:0 16px; }
-    .grid{ display:grid; grid-template-columns: 1fr; gap:16px; }
-    .card{ background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
-    h2{ margin:0 0 10px; color:#0f172a; }
-    h3{ margin:0 0 10px; color:#0f172a; font-size:16px; }
-    table{ width:100%; border-collapse:collapse; }
-    th,td{ text-align:left; padding:10px; border-bottom:1px solid #e2e8f0; font-size:14px; }
-    th{ color:#334155; background:#f8fafc; }
-    .badge{ display:inline-block; padding:5px 10px; border-radius:999px; border:1px solid #cbd5e1; background:#fff; font-size:12px; font-weight:700; }
-    .btn{
-      display:inline-block; padding:8px 12px; border-radius:8px;
-      border:1px solid #cbd5e1; text-decoration:none; color:#0f172a; background:#fff;
-    }
-    .btn.primary{ background:#0284c7; border-color:#0284c7; color:#fff; }
-    .row-actions{ display:flex; gap:8px; }
-    .empty{ color:#64748b; font-size:14px; padding:10px 0; }
-    .topbar{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:16px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Dashboard | Jefe de Soporte</title>
+    <!-- Aquí puedes incluir tus CSS si los tienes -->
+	<style>
+	        * {
+	            box-sizing: border-box;
+	            font-family: Arial, Helvetica, sans-serif;
+	        }
+
+	        body {
+	            margin: 0;
+	            background-color: #f1f5f9;
+	        }
+
+	        header {
+	            background-color: #020617;
+	            color: white;
+	            padding: 16px 30px;
+	            font-size: 20px;
+	            font-weight: bold;
+	        }
+
+	        .container {
+	            max-width: 1300px;
+	            margin: 30px auto;
+	            padding: 20px;
+	        }
+
+	        h2 {
+	            color: #020617;
+	            margin-bottom: 15px;
+	        }
+
+	        .botones
+	        {
+	            display: flex;
+	            justify-content: flex-end;
+	            gap: 15px;
+	            margin-top: 20px;
+	        }
+
+	        /* KPIs */
+	        .kpi-grid {
+	            display: grid;
+	            grid-template-columns: repeat(4, 1fr);
+	            gap: 20px;
+	            margin-bottom: 35px;
+	        }
+
+	        .kpi-card {
+	            background-color: white;
+	            padding: 20px;
+	            border-radius: 8px;
+	            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+	            text-align: center;
+	        }
+
+	        .kpi-card span {
+	            display: block;
+	            font-size: 14px;
+	            color: #64748b;
+	        }
+
+	        .kpi-card strong {
+	            font-size: 32px;
+	            color: #020617;
+	        }
+
+	        .kpi-open { border-top: 5px solid #f97316; }
+	        .kpi-progress { border-top: 5px solid #2563eb; }
+	        .kpi-late { border-top: 5px solid #dc2626; }
+	        .kpi-closed { border-top: 5px solid #16a34a; }
+
+	        /* Tablas */
+	        .panel {
+	            background-color: white;
+	            padding: 20px;
+	            border-radius: 8px;
+	            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+	            margin-bottom: 30px;
+	        }
+
+	        table {
+	            width: 100%;
+	            border-collapse: collapse;
+	            margin-top: 15px;
+	        }
+
+	        th, td {
+	            padding: 12px;
+	            text-align: center;
+	            border-bottom: 1px solid #e5e7eb;
+	            font-size: 14px;
+	        }
+
+	        th {
+	            background-color: #e2e8f0;
+	        }
+
+	        .priority-alta {
+	            color: #dc2626;
+	            font-weight: bold;
+	        }
+
+	        .status-late {
+	            color: white;
+	            background-color: #dc2626;
+	            padding: 5px 10px;
+	            border-radius: 12px;
+	            font-size: 12px;
+	        }
+
+	        .btn {
+	            background-color: #2563eb;
+	            color: white;
+	            padding: 6px 12px;
+	            border-radius: 6px;
+	            text-decoration: none;
+	            font-size: 13px;
+	        }
+
+	        .btn:hover {
+	            background-color: #1d4ed8;
+	        }
+
+	        footer {
+	            text-align: center;
+	            font-size: 13px;
+	            color: #6b7280;
+	            margin: 25px 0;
+	        }
+	    </style>
 </head>
 <body>
 
-<header>Sistema Web de Gestión de Incidencias - Bandeja Jefe de Soporte</header>
+<header>
+    Dashboard del Jefe de Soporte
+    <div style="float: right; margin-right: 20px;">
+        <span th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Nombre Jefe</span>
+        <a th:href="@{/logout}" class="logout" style="margin-left: 15px;">Cerrar Sesión</a>
+    </div>
+</header>
 
-<div class="wrap">
-  <div class="topbar">
-    <h2 style="margin:0;">Bandeja de Incidencias</h2>
-    <a class="btn" th:href="@{/logout}">Salir</a>
-  </div>
+<div class="container">
 
-  <div class="grid">
-
-    <!-- ABIERTAS -->
-    <div class="card">
-      <h3>Incidencias Abiertas <span class="badge" th:text="${#lists.size(abiertas)}">0</span></h3>
-
-      <div th:if="${#lists.isEmpty(abiertas)}" class="empty">No hay incidencias abiertas.</div>
-
-      <table th:if="${!#lists.isEmpty(abiertas)}">
-        <thead>
-        <tr>
-          <th>ID</th>
-          <th>Código</th>
-          <th>Cliente</th>
-          <th>Asunto</th>
-          <th>Fecha</th>
-          <th>Acción</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="t : ${abiertas}">
-          <td th:text="${t.idIncidencia}">1</td>
-          <td th:text="${t.codigoTicket}">TCK-XXXX</td>
-          <td th:text="${t.cliente.nombres + ' ' + t.cliente.apellidos}">Cliente</td>
-          <td th:text="${t.asunto}">Asunto</td>
-          <td th:text="${t.fechaRegistro}">2026-02-14</td>
-          <td>
-            <div class="row-actions">
-              <a class="btn primary" th:href="@{/soporte/ticket/{id}(id=${t.idIncidencia})}">Ver</a>
-            </div>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+    <h2>Resumen General</h2>
+    <div class="kpi-grid">
+        <div class="kpi-card kpi-open">
+            <strong th:text="${kpis.abiertos}">12</strong> <!-- CORREGIDO: Accede a kpis.abiertos -->
+            <span>Tickets Abiertos</span>
+        </div>
+        <div class="kpi-card kpi-progress">
+            <strong th:text="${kpis.enAtencion}">8</strong> <!-- CORREGIDO: Accede a kpis.enAtencion -->
+            <span>En Atención</span>
+        </div>
+        <div class="kpi-card kpi-late">
+            <strong th:text="${kpis.atrasados}">3</strong> <!-- CORREGIDO: Accede a kpis.atrasados -->
+            <span>Atrasados / Críticos</span>
+        </div>
+        <div class="kpi-card kpi-closed">
+            <strong th:text="${kpis.cerradosMes}">45</strong> <!-- CORREGIDO: Accede a kpis.cerradosMes -->
+            <span>Cerrados (Mes)</span>
+        </div>
     </div>
 
-    <!-- EN PROCESO -->
-    <div class="card">
-      <h3>En Proceso <span class="badge" th:text="${#lists.size(enProceso)}">0</span></h3>
-
-      <div th:if="${#lists.isEmpty(enProceso)}" class="empty">No hay incidencias en proceso.</div>
-
-      <table th:if="${!#lists.isEmpty(enProceso)}">
-        <thead>
-        <tr>
-          <th>ID</th>
-          <th>Código</th>
-          <th>Cliente</th>
-          <th>Asunto</th>
-          <th>Fecha</th>
-          <th>Acción</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="t : ${enProceso}">
-          <td th:text="${t.idIncidencia}">1</td>
-          <td th:text="${t.codigoTicket}">TCK-XXXX</td>
-          <td th:text="${t.cliente.nombres + ' ' + t.cliente.apellidos}">Cliente</td>
-          <td th:text="${t.asunto}">Asunto</td>
-          <td th:text="${t.fechaRegistro}">2026-02-14</td>
-          <td>
-            <a class="btn primary" th:href="@{/soporte/ticket/{id}(id=${t.idIncidencia})}">Ver</a>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+    <div class="panel">
+        <h2>Incidencias Atrasadas / Críticas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ticket</th>
+                    <th>Solicitante</th>
+                    <th>Prioridad</th>
+                    <th>Técnico</th>
+                    <th>Estado</th>
+                    <th>Asignar</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="incidencia : ${incidenciasAtrasadasCriticas}">
+                    <td th:text="${incidencia.codigoTicket}">TCK-000160</td>
+                    <td th:text="${incidencia.cliente.nombres + ' ' + incidencia.cliente.apellidos}">Ana Torres</td>
+                    <!-- Asumo que la prioridad viene de Clasificacion -->
+                    <td th:classappend="${incidencia.clasificacion != null && incidencia.clasificacion.prioridad.nombre == 'Alta' ? 'priority-alta' : ''}"
+                        th:text="${incidencia.clasificacion != null ? incidencia.clasificacion.prioridad.nombre : 'N/A'}">Alta</td>
+                    <!-- Asumo que el técnico viene de Asignacion -->
+                    <td th:text="${incidencia.asignacion != null ? (incidencia.asignacion.tecnico.nombres + ' ' + incidencia.asignacion.tecnico.apellidos) : 'Sin Asignar'}">María Torres</td>
+                    <td><span class="status-late" th:text="${incidencia.estado.nombre}">Atrasado</span></td>
+                    <td>
+                        <a th:if="${incidencia.asignacion == null}" th:href="@{/soporte/ticket/{id}/asignar(id=${incidencia.idIncidencia})}" class="btn">Asignar</a>
+                        <span th:unless="${incidencia.asignacion == null}">Asignado</span>
+                    </td>
+                    <td><a th:href="@{/soporte/ticket/{id}/revisar(id=${incidencia.idIncidencia})}" class="btn">Revisar</a></td>
+                </tr>
+                <tr th:if="${incidenciasAtrasadasCriticas.empty}">
+                    <td colspan="7" class="empty-message">No hay incidencias atrasadas o críticas.</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
-    <!-- CERRADAS -->
-    <div class="card">
-      <h3>Cerradas <span class="badge" th:text="${#lists.size(cerradas)}">0</span></h3>
-
-      <div th:if="${#lists.isEmpty(cerradas)}" class="empty">No hay incidencias cerradas.</div>
-
-      <table th:if="${!#lists.isEmpty(cerradas)}">
-        <thead>
-        <tr>
-          <th>ID</th>
-          <th>Código</th>
-          <th>Cliente</th>
-          <th>Asunto</th>
-          <th>Fecha</th>
-          <th>Acción</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="t : ${cerradas}">
-          <td th:text="${t.idIncidencia}">1</td>
-          <td th:text="${t.codigoTicket}">TCK-XXXX</td>
-          <td th:text="${t.cliente.nombres + ' ' + t.cliente.apellidos}">Cliente</td>
-          <td th:text="${t.asunto}">Asunto</td>
-          <td th:text="${t.fechaRegistro}">2026-02-14</td>
-          <td>
-            <a class="btn primary" th:href="@{/soporte/ticket/{id}(id=${t.idIncidencia})}">Ver</a>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+    <div class="panel">
+        <h2>Carga de Trabajo por Técnico</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Técnico</th>
+                    <th>Asignados</th>
+                    <th>En Atención</th>
+                    <th>Atrasados</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="carga : ${cargaTrabajoTecnicos}">
+                    <td th:text="${carga.tecnico.nombres + ' ' + carga.tecnico.apellidos}">Carlos Ramírez</td>
+                    <td th:text="${carga.asignados}">5</td>
+                    <td th:text="${carga.enAtencion}">3</td>
+                    <td th:text="${carga.atrasados}">1</td>
+                </tr>
+                <tr th:if="${cargaTrabajoTecnicos.empty}">
+                    <td colspan="4" class="empty-message">No hay técnicos con carga de trabajo.</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-
-  </div>
+    <div class="botones" >
+        <div class="actions">
+            <a th:href="@{/soporte/reporte-diario}" class="btn btn-close">Reporte Diario</a>
+        </div >
+        <div class="actions">
+            <a th:href="@{/soporte/reporte-tiempo}" class="btn btn-close">Reporte Tiempo</a>
+        </div>
+    </div>
 </div>
+
+<footer>
+    © 2026 TechSolutions Perú S.A.C. | Dashboard Jefe de Soporte
+</footer>
 
 </body>
 </html>

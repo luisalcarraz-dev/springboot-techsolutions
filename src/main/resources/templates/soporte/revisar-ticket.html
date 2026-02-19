@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Revisar Ticket | Jefe de Soporte</title>
+    <!-- Aquí puedes incluir tus CSS si los tienes -->
+	<style>
+	    * {
+	        box-sizing: border-box;
+	        font-family: Arial, Helvetica, sans-serif;
+	    }
+
+	    body {
+	        margin: 0;
+	        background-color: #f1f5f9;
+	    }
+
+	    header {
+	        background-color: #020617;
+	        color: white;
+	        padding: 16px 30px;
+	        font-size: 20px;
+	        font-weight: bold;
+	    }
+
+	    .container {
+	        max-width: 1200px;
+	        margin: 30px auto;
+	        background-color: white;
+	        padding: 25px;
+	        border-radius: 8px;
+	        box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+	    }
+
+	    h2 {
+	        margin-top: 0;
+	        color: #020617;
+	        border-bottom: 2px solid #e5e7eb;
+	        padding-bottom: 8px;
+	    }
+
+	    h3 {
+	        margin-top: 25px;
+	        color: #1e293b;
+	    }
+
+	    /* Información */
+	    .info-grid {
+	        display: grid;
+	        grid-template-columns: repeat(4, 1fr);
+	        gap: 15px;
+	        margin-bottom: 25px;
+	    }
+
+	    .info-box {
+	        background-color: #f8fafc;
+	        padding: 12px;
+	        border-left: 5px solid #2563eb;
+	        border-radius: 6px;
+	        font-size: 14px;
+	    }
+
+	    .info-box span {
+	        display: block;
+	        font-weight: bold;
+	        color: #1e293b;
+	    }
+
+	    .status {
+	        display: inline-block;
+	        padding: 5px 12px;
+	        border-radius: 12px;
+	        font-size: 12px;
+	        font-weight: bold;
+	        color: white;
+	        background-color: #dc2626;
+	    }
+
+	    /* Bloques */
+	    .block {
+	        background-color: #f8fafc;
+	        border-left: 5px solid #64748b;
+	        padding: 15px;
+	        border-radius: 6px;
+	        margin-bottom: 20px;
+	        font-size: 14px;
+	    }
+
+	    .client {
+	        border-left-color: #eab308;
+	        background-color: #fefce8;
+	    }
+
+	    .tech {
+	        border-left-color: #2563eb;
+	        background-color: #eff6ff;
+	    }
+
+	    textarea, select {
+	        width: 100%;
+	        padding: 10px;
+	        border: 1px solid #cbd5f5;
+	        border-radius: 6px;
+	        font-size: 14px;
+	        margin-top: 8px;
+	    }
+
+	    .actions {
+	        margin-top: 30px;
+	        text-align: right;
+	    }
+
+	    .btn {
+	        border: none;
+	        padding: 12px 22px;
+	        font-size: 14px;
+	        border-radius: 6px;
+	        cursor: pointer;
+	        margin-left: 10px;
+	    }
+
+	    .btn-reassign {
+	        background-color: #2563eb;
+	        color: white;
+	    }
+
+	    .btn-support {
+	        background-color: #f97316;
+	        color: white;
+	    }
+
+	    .btn-save {
+	        background-color: #16a34a;
+	        color: white;
+	    }
+
+	    footer {
+	        margin-top: 25px;
+	        text-align: center;
+	        font-size: 13px;
+	        color: #6b7280;
+	    }
+	</style>
+</head>
+<body>
+
+<header>
+    Revisión de Ticket – Jefe de Soporte
+    <div style="float: right; margin-right: 20px;">
+        <span th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Nombre Jefe</span>
+        <a th:href="@{/logout}" class="logout" style="margin-left: 15px;">Cerrar Sesión</a>
+    </div>
+</header>
+
+<div class="container">
+    <h2>Detalle del Ticket <span th:text="${ticket.codigoTicket}">TCK-XXXX</span></h2>
+
+    <!-- Datos generales -->
+    <div class="info-grid">
+        <div class="info-box">
+            <span>N° Ticket</span>
+            <span th:text="${ticket.codigoTicket}">TCK-000160</span>
+        </div>
+        <div class="info-box">
+            <span>Estado</span>
+            <span class="status" th:text="${ticket.estado.nombre}">ATRASADO</span>
+        </div>
+        <div class="info-box">
+            <span>Prioridad</span>
+            <span th:text="${ticket.clasificacion != null ? ticket.clasificacion.prioridad.nombre : 'N/A'}">ALTA</span>
+        </div>
+        <div class="info-box">
+            <span>Técnico Asignado</span>
+            <span th:text="${ticket.asignacion != null ? (ticket.asignacion.tecnico.nombres + ' ' + ticket.asignacion.tecnico.apellidos) : 'Sin Asignar'}">María Torres</span>
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-box">
+            <span>Solicitante</span>
+            <span th:text="${ticket.cliente.nombres + ' ' + ticket.cliente.apellidos}">Ana Torres</span>
+        </div>
+        <div class="info-box">
+            <span>Correo Solicitante</span>
+            <span th:text="${ticket.cliente.correo}">ana.torres@example.com</span>
+        </div>
+        <div class="info-box">
+            <span>Fecha Registro</span>
+            <span th:text="${#temporals.format(ticket.fechaRegistro, 'dd/MM/yyyy')}">06/02/2026</span>
+        </div>
+        <div class="info-box">
+            <span>Tiempo Objetivo</span>
+            <span th:text="${ticket.clasificacion != null ? (ticket.clasificacion.tiempoObjetivoHoras + ' horas') : 'N/A'}">4 horas</span>
+        </div>
+    </div>
+
+    <!-- Descripción cliente -->
+    <h3>Descripción del Incidente (Cliente)</h3>
+    <div class="block client" th:text="${ticket.descripcion}">
+        El equipo no reconoce la impresora de red desde el día de ayer.
+        Se ha intentado reiniciar el equipo, pero el problema persiste.
+    </div>
+
+    <!-- Avances técnico -->
+    <h3>Avances del Técnico</h3>
+    <div class="block tech">
+        <!-- CAMBIO AQUÍ: Acceder a ordenTrabajo directamente -->
+        <div th:if="${ordenTrabajo != null}">
+            <strong>Diagnóstico:</strong><br>
+            <span th:text="${ordenTrabajo.actividades}">Posible error en la configuración de red del equipo cliente.</span><br><br>
+
+            <strong>Actividades realizadas:</strong><br>
+            <span th:text="${ordenTrabajo.herramientas}">Revisión de drivers y prueba de conectividad con la impresora.</span><br><br>
+
+            <strong>Observaciones del Técnico:</strong><br>
+            <span th:text="${ordenTrabajo.observaciones}">Ninguna.</span>
+        </div>
+        <div th:unless="${ordenTrabajo != null}">
+            No hay avances registrados por el técnico aún.
+        </div>
+    </div>
+
+    <!-- Acciones del jefe -->
+    <h3>Acciones del Jefe de Soporte</h3>
+
+    <form th:action="@{/soporte/ticket/{id}/revisar(id=${ticket.idIncidencia})}" method="post">
+        <label for="reasignarTecnico">Reasignar Técnico (opcional)</label>
+        <select id="reasignarTecnico" name="nuevoTecnicoId">
+            <option value="">No Reasignar</option>
+            <option th:each="tecnico : ${tecnicosDisponibles}"
+                    th:value="${tecnico.idUsuario}"
+                    th:text="${tecnico.nombres + ' ' + tecnico.apellidos}"
+                    th:selected="${ticket.asignacion != null && tecnico.idUsuario == ticket.asignacion.tecnico.idUsuario}"></option>
+        </select>
+
+        <label style="margin-top:15px;" for="observacionesJefe">Observaciones del Jefe de Soporte</label>
+        <textarea id="observacionesJefe" name="observacionesJefe" placeholder="Indique acciones, apoyo o instrucciones para el técnico..."></textarea>
+
+        <div class="actions">
+            <button type="submit" name="accion" value="solicitarApoyo" class="btn btn-support">Solicitar Apoyo</button>
+            <button type="submit" name="accion" value="reasignar" class="btn btn-reassign">Reasignar</button>
+            <button type="submit" name="accion" value="guardar" class="btn btn-save">Guardar</button>
+            <a th:href="@{/soporte/home}" class="btn btn-cancel">Volver al Dashboard</a>
+        </div>
+    </form>
+</div>
+
+<footer>
+    © 2026 TechSolutions Perú S.A.C. | Revisión de Incidencias
+</footer>
+
+</body>
+</html>

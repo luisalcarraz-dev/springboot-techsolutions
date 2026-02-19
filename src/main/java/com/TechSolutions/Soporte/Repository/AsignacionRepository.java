@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AsignacionRepository extends JpaRepository<Asignacion, Integer> {
-    // Métodos personalizados si son necesarios
+    // Métodos si los necesitas
 }
