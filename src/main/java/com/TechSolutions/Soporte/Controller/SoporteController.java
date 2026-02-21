@@ -2,18 +2,22 @@
 package com.TechSolutions.Soporte.Controller;
 
 import com.TechSolutions.Soporte.model.Incidencia;
-import com.TechSolutions.Soporte.model.OrdenTrabajo; // Importar OrdenTrabajo
+import com.TechSolutions.Soporte.model.OrdenTrabajo;
+import com.TechSolutions.Soporte.model.Prioridad;
 import com.TechSolutions.Soporte.model.Usuario;
 import com.TechSolutions.Soporte.service.SoporteService;
 import com.TechSolutions.Soporte.service.SoporteService.CargaTrabajoTecnicoDTO;
-import com.TechSolutions.Soporte.service.TecnicoService; // Necesitamos TecnicoService para obtener OrdenTrabajo
+import com.TechSolutions.Soporte.service.TecnicoService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
+import java.util.ArrayList; // Necesario para el reporte de tiempos
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +28,7 @@ public class SoporteController {
     @Autowired
     private SoporteService soporteService;
     @Autowired
-    private TecnicoService tecnicoService; // Inyectar TecnicoService para obtener OrdenTrabajo
+    private TecnicoService tecnicoService;
 
     @GetMapping("/home")
     public String home(HttpSession session, Model model) {
@@ -136,15 +140,13 @@ public class SoporteController {
             return "redirect:/soporte/home";
         }
 
-        // --- CAMBIO AQUÍ: Obtener la OrdenTrabajo si existe una asignación ---
         OrdenTrabajo ordenTrabajo = null;
         if (ticket.getAsignacion() != null) {
             ordenTrabajo = tecnicoService.obtenerOrdenTrabajoPorAsignacionId(ticket.getAsignacion().getIdAsignacion());
         }
-        // -------------------------------------------------------------------
 
         model.addAttribute("ticket", ticket);
-        model.addAttribute("ordenTrabajo", ordenTrabajo); // Pasar la OrdenTrabajo al modelo
+        model.addAttribute("ordenTrabajo", ordenTrabajo);
         model.addAttribute("tecnicosDisponibles", soporteService.findAllTecnicos());
         model.addAttribute("jefeSoporte", jefeSoporte);
 
@@ -189,5 +191,80 @@ public class SoporteController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al procesar la acción: " + e.getMessage());
         }
         return "redirect:/soporte/ticket/" + idIncidencia + "/revisar";
+    }
+
+    @GetMapping("/reporte-diario")
+    public String reporteDiario(@RequestParam(value = "fecha", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+                                HttpSession session, Model model) {
+        String rol = (String) session.getAttribute("rol");
+        Usuario jefeSoporte = (Usuario) session.getAttribute("usuario");
+
+        if (jefeSoporte == null || !"JEFE_SOPORTE".equals(rol)) {
+            return "redirect:/login";
+        }
+
+        if (fecha == null) {
+            fecha = LocalDate.now();
+        }
+
+        Map<String, Long> resumen = soporteService.getResumenDiarioIncidencias(fecha);
+        List<Incidencia> detalleIncidencias = soporteService.getDetalleIncidenciasDiarias(fecha);
+
+        model.addAttribute("fechaReporte", fecha);
+        model.addAttribute("resumen", resumen);
+        model.addAttribute("detalleIncidencias", detalleIncidencias);
+        model.addAttribute("jefeSoporte", jefeSoporte);
+
+        model.addAttribute("chartLabels", List.of("Abiertos", "En Proceso", "Cerrados", "Atrasados"));
+        model.addAttribute("chartData", List.of(
+                resumen.getOrDefault("abiertos", 0L),
+                resumen.getOrDefault("enProceso", 0L),
+                resumen.getOrDefault("cerrados", 0L),
+                resumen.getOrDefault("atrasados", 0L)
+        ));
+
+        return "soporte/reporte-diario";
+    }
+
+    // --- Nuevo método para Reporte de Tiempos de Atención ---
+    @GetMapping("/reporte-tiempo")
+    public String reporteTiempo(HttpSession session, Model model) {
+        String rol = (String) session.getAttribute("rol");
+        Usuario jefeSoporte = (Usuario) session.getAttribute("usuario");
+
+        if (jefeSoporte == null || !"JEFE_SOPORTE".equals(rol)) {
+            return "redirect:/login";
+        }
+
+        // Datos para el gráfico de Tiempo Promedio de Atención
+        int numDias = 5; // Por ejemplo, los últimos 5 días laborales
+        Map<String, List<?>> tiempoPromedioData = soporteService.getTiempoPromedioAtencionPorDia(numDias);
+        model.addAttribute("tiempoAtencionLabels", tiempoPromedioData.get("labels"));
+        model.addAttribute("tiempoAtencionData", tiempoPromedioData.get("data"));
+
+        // Datos para el gráfico de Comparación Tiempo Objetivo vs Real
+        Map<String, Map<String, Double>> comparacionData = soporteService.getComparacionTiempoObjetivoVsRealPorPrioridad();
+        List<String> prioridadesLabels = new ArrayList<>();
+        List<Double> objetivoData = new ArrayList<>();
+        List<Double> realData = new ArrayList<>();
+
+        // Asegurar un orden consistente y manejar prioridades que no existen en los datos
+        // Puedes obtener las prioridades de la DB para garantizar el orden
+        List<Prioridad> todasPrioridades = soporteService.findAllPrioridades(); // Asumo que este método existe y devuelve Prioridad
+        for (Prioridad prioridad : todasPrioridades) {
+            String nombrePrioridad = prioridad.getNombre();
+            prioridadesLabels.add(nombrePrioridad);
+            Map<String, Double> tiempos = comparacionData.getOrDefault(nombrePrioridad, Map.of("objetivo", 0.0, "real", 0.0));
+            objetivoData.add(tiempos.get("objetivo"));
+            realData.add(tiempos.get("real"));
+        }
+
+        model.addAttribute("comparativoLabels", prioridadesLabels);
+        model.addAttribute("comparativoObjetivoData", objetivoData);
+        model.addAttribute("comparativoRealData", realData);
+
+        model.addAttribute("jefeSoporte", jefeSoporte);
+
+        return "soporte/reporte-tiempo";
     }
 }

@@ -105,4 +105,26 @@ public class TecnicoController {
         // Redirigir al dashboard del técnico
         return "redirect:/tecnico/home";
     }
+    
+
+    // --- NUEVO MÉTODO: Solicitar cierre ---
+    @PostMapping("/ticket/{idIncidencia}/solicitar-cierre")
+    public String solicitarCierre(@PathVariable Integer idIncidencia,
+                                  HttpSession session,
+                                  RedirectAttributes redirectAttributes) {
+        String rol = (String) session.getAttribute("rol");
+        Usuario tecnico = (Usuario) session.getAttribute("usuario");
+
+        if (tecnico == null || !"TECNICO".equals(rol)) {
+            return "redirect:/login";
+        }
+
+        try {
+            tecnicoService.solicitarCierreIncidencia(idIncidencia, tecnico.getIdUsuario());
+            redirectAttributes.addFlashAttribute("successMessage", "Solicitud de cierre enviada al cliente.");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al solicitar cierre: " + e.getMessage());
+        }
+        return "redirect:/tecnico/home"; // O redirige a la vista de detalle del ticket
+    }
 }

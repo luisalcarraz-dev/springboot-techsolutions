@@ -42,6 +42,9 @@ public class Incidencia {
     @Column(name = "fecha_registro", nullable = false)
     private LocalDate fechaRegistro;
     
+    @Column(name = "fecha_cierre")
+    private LocalDate fechaCierre;
+    
  // Relación con Clasificación (opcional, puede ser null si no se ha clasificado)
     @OneToOne(mappedBy = "incidencia", cascade = CascadeType.ALL)
     private Clasificacion clasificacion;

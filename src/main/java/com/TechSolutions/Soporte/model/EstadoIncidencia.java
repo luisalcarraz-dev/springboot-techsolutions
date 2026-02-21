@@ -13,6 +13,6 @@ public class EstadoIncidencia {
     @Column(name = "id_estado", nullable = false)
     private Integer idEstado;
 
-    @Column(name = "nombre", nullable = false, length = 20, unique = true)
+    @Column(name = "nombre", nullable = false, length = 50, unique = true)
     private String nombre;
 }

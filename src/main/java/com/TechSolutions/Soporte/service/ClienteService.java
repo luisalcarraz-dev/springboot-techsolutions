@@ -1,17 +1,16 @@
 // src/main/java/com/TechSolutions.Soporte/service/ClienteService.java
 package com.TechSolutions.Soporte.service;
 
-import com.TechSolutions.Soporte.Repository.ActaConformidadRepository;
-import com.TechSolutions.Soporte.Repository.EstadoIncidenciaRepository;
 import com.TechSolutions.Soporte.Repository.IncidenciaRepository;
-import com.TechSolutions.Soporte.model.ActaConformidad;
+import com.TechSolutions.Soporte.Repository.EstadoIncidenciaRepository;
+import com.TechSolutions.Soporte.Repository.OrdenTrabajoRepository;
 import com.TechSolutions.Soporte.model.EstadoIncidencia;
 import com.TechSolutions.Soporte.model.Incidencia;
-
-import jakarta.transaction.Transactional;
-
+import com.TechSolutions.Soporte.model.OrdenTrabajo;
+import com.TechSolutions.Soporte.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -26,97 +25,116 @@ public class ClienteService {
     @Autowired
     private IncidenciaRepository incidenciaRepository;
     @Autowired
-    private ActaConformidadRepository actaConformidadRepository; // Inyectar el repositorio
-    
+    private EstadoIncidenciaRepository estadoIncidenciaRepository;
     @Autowired
-    private EstadoIncidenciaRepository estadoIncidenciaRepository; // Inyectar el repositorio
+    private OrdenTrabajoRepository ordenTrabajoRepository;
 
-    // Método para obtener estadísticas de incidencias por estado para un cliente
+    public List<Incidencia> getIncidenciasByClienteId(Integer idCliente) {
+        return incidenciaRepository.findByCliente_IdUsuario(idCliente);
+    }
+
+    public Incidencia buscarIncidenciaPorId(Integer id) {
+        return incidenciaRepository.findById(id).orElse(null);
+    }
+
+    public OrdenTrabajo obtenerOrdenTrabajoPorAsignacionId(Integer idAsignacion) {
+        return ordenTrabajoRepository.findByAsignacion_IdAsignacion(idAsignacion).orElse(null);
+    }
+
+    @Transactional
+    public Incidencia procesarConformidadCliente(Integer idIncidencia, Integer idCliente, String accion, String comentarioCliente) {
+        Incidencia incidencia = incidenciaRepository.findById(idIncidencia)
+                .orElseThrow(() -> new RuntimeException("Incidencia no encontrada."));
+
+        if (!incidencia.getCliente().getIdUsuario().equals(idCliente)) {
+            throw new RuntimeException("Acceso denegado. El ticket no pertenece a este cliente.");
+        }
+
+        if (!"PENDIENTE_CONFORMIDAD_CLIENTE".equals(incidencia.getEstado().getNombre())) {
+            throw new RuntimeException("La incidencia no está en estado de espera de conformidad.");
+        }
+
+        if ("conforme".equals(accion)) {
+            EstadoIncidencia estadoCerrado = estadoIncidenciaRepository.findByNombre("CERRADO")
+                    .orElseThrow(() -> new RuntimeException("Estado 'CERRADO' no encontrado."));
+            incidencia.setEstado(estadoCerrado);
+            incidencia.setFechaCierre(LocalDate.now());
+            System.out.println("Comentario del cliente: " + comentarioCliente);
+
+        } else if ("noConforme".equals(accion)) {
+            EstadoIncidencia estadoEnProceso = estadoIncidenciaRepository.findByNombre("EN_PROCESO")
+                    .orElseThrow(() -> new RuntimeException("Estado 'EN_PROCESO' no encontrado."));
+            incidencia.setEstado(estadoEnProceso);
+            System.out.println("Cliente NO CONFORME. Comentario: " + comentarioCliente);
+
+        } else {
+            throw new IllegalArgumentException("Acción de conformidad no válida: " + accion);
+        }
+
+        return incidenciaRepository.save(incidencia);
+    }
+
+    // --- NUEVOS MÉTODOS PARA EL DASHBOARD DEL CLIENTE ---
+
+    /**
+     * Obtiene estadísticas para el dashboard del cliente.
+     * @param idCliente ID del cliente.
+     * @return Mapa con conteos de incidencias por estado.
+     */
     public Map<String, Long> obtenerEstadisticas(Integer idCliente) {
-        List<Incidencia> incidenciasCliente = incidenciaRepository.findByCliente_IdUsuarioOrderByIdIncidenciaDesc(idCliente);
+        List<Incidencia> incidenciasCliente = incidenciaRepository.findByCliente_IdUsuario(idCliente);
         Map<String, Long> estadisticas = new HashMap<>();
 
-        long abiertos = incidenciasCliente.stream()
-                .filter(i -> "ABIERTO".equals(i.getEstado().getNombre()))
-                .count();
-        long enProceso = incidenciasCliente.stream()
-                .filter(i -> "EN_PROCESO".equals(i.getEstado().getNombre()))
-                .count();
-        long cerrados = incidenciasCliente.stream()
-                .filter(i -> "CERRADO".equals(i.getEstado().getNombre()))
-                .count();
-        
-        // Para 'Atrasados', tu HTML usa una lógica basada en fechaRegistro.
-        // Aquí podemos replicar una lógica similar o ajustarla según tu definición de "atrasado".
-        // Por ejemplo, si una incidencia abierta o en proceso tiene más de 2 días.
-        long atrasados = incidenciasCliente.stream()
-                .filter(i -> ("ABIERTO".equals(i.getEstado().getNombre()) || "EN_PROCESO".equals(i.getEstado().getNombre())) && 
-                             i.getFechaRegistro().isBefore(LocalDate.now().minusDays(2)))
-                .count();
+        estadisticas.put("total", (long) incidenciasCliente.size());
+        estadisticas.put("abiertas", incidenciasCliente.stream()
+                .filter(i -> i.getEstado() != null && "ABIERTO".equals(i.getEstado().getNombre()))
+                .count());
+        estadisticas.put("enProceso", incidenciasCliente.stream()
+                .filter(i -> i.getEstado() != null && "EN_PROCESO".equals(i.getEstado().getNombre()))
+                .count());
+        estadisticas.put("pendientesConformidad", incidenciasCliente.stream()
+                .filter(i -> i.getEstado() != null && "PENDIENTE_CONFORMIDAD_CLIENTE".equals(i.getEstado().getNombre()))
+                .count());
+        estadisticas.put("cerradas", incidenciasCliente.stream()
+                .filter(i -> i.getEstado() != null && "CERRADO".equals(i.getEstado().getNombre()))
+                .count());
+        // Puedes añadir más estadísticas si lo necesitas
 
-        estadisticas.put("abiertos", abiertos);
-        estadisticas.put("enProceso", enProceso);
-        estadisticas.put("cerrados", cerrados);
-        estadisticas.put("atrasados", atrasados); // Asegúrate de que esta clave coincida con tu HTML
-        
         return estadisticas;
     }
 
-    // Método para obtener los últimos N tickets de un cliente
-    public List<Incidencia> obtenerUltimosTickets(Integer idCliente, int limite) {
-        // Tu IncidenciaRepository ya tiene findByCliente_IdUsuarioOrderByIdIncidenciaDesc
-        // Podemos limitar el resultado si es necesario, o simplemente devolver todos y que la vista los maneje.
-        // Para un límite, podríamos usar Pageable si el repositorio extiende PagingAndSortingRepository.
-        // Por ahora, devolveremos todos y la vista puede mostrar los primeros N.
+    /**
+     * Obtiene los últimos N tickets del cliente.
+     * @param idCliente ID del cliente.
+     * @param limit Cantidad máxima de tickets a devolver.
+     * @return Lista de las últimas incidencias del cliente.
+     */
+    public List<Incidencia> obtenerUltimosTickets(Integer idCliente, int limit) {
+        // Asumo que IncidenciaRepository tiene un método para esto,
+        // o puedes obtener todas y luego limitar/ordenar.
+        // Por ejemplo, si tienes un método en el repo:
+        // return incidenciaRepository.findTopNByCliente_IdUsuarioOrderByIdIncidenciaDesc(idCliente, limit);
+        // Si no, puedes hacer esto:
         return incidenciaRepository.findByCliente_IdUsuarioOrderByIdIncidenciaDesc(idCliente)
                 .stream()
-                .limit(limite)
+                .limit(limit)
                 .collect(Collectors.toList());
     }
 
-    // Método para buscar un ticket específico de un cliente
-    public Incidencia buscarTicketCliente(Integer idIncidencia, Integer idCliente) {
-        return incidenciaRepository.findByIdIncidenciaAndCliente_IdUsuario(idIncidencia, idCliente);
-    }
-
-    
-    @Transactional // Asegura que ambas operaciones (guardar acta y actualizar incidencia) sean atómicas
-    public void guardarConformidad(Integer idIncidencia, Integer idCliente, Boolean conforme, String comentario) {
-        // 1. Buscar la incidencia
-        Incidencia incidencia = incidenciaRepository.findByIdIncidenciaAndCliente_IdUsuario(idIncidencia, idCliente);
-        if (incidencia == null) {
-            throw new RuntimeException("Incidencia no encontrada o no pertenece al cliente.");
-        }
-        
-        // 2. Verificar si ya existe un acta para esta incidencia (para evitar duplicados)
-        Optional<ActaConformidad> actaExistente = actaConformidadRepository.findByIncidencia_IdIncidencia(idIncidencia);
-        ActaConformidad acta = actaExistente.orElseGet(ActaConformidad::new); // Si existe, la usa; si no, crea una nueva
-
-        // 3. Crear/Actualizar la entidad ActaConformidad
-        acta.setIncidencia(incidencia);
-        acta.setCliente(incidencia.getCliente()); // El cliente de la incidencia es quien da la conformidad
-        acta.setConforme(conforme);
-        acta.setComentario(comentario);
-        acta.setFechaConformidad(LocalDate.now());
-        
-        actaConformidadRepository.save(acta); // Guardar el acta
-
-        // 4. Actualizar el estado de la incidencia según la conformidad
-        if (conforme) {
-            // Si el cliente da conformidad, el estado ya debería ser CERRADO (por la validación del controller)
-            // No es necesario cambiarlo, pero podríamos añadir una verificación si se desea.
-            // Por ejemplo, si se quiere un estado "CONFORMADO" distinto de "CERRADO".
-            // Para este caso, asumimos que si llega aquí y es conforme, el estado CERRADO es final.
-        } else {
-            // Si el cliente NO da conformidad, cambiar el estado a "EN_PROCESO" o a un nuevo estado como "RECHAZADO"
-            // Asumo que existe un estado "EN_PROCESO" con el nombre "EN_PROCESO" en tu DB.
-            Optional<EstadoIncidencia> estadoEnProceso = estadoIncidenciaRepository.findByNombre("EN_PROCESO");
-            if (estadoEnProceso.isPresent()) {
-                incidencia.setEstado(estadoEnProceso.get());
-                incidenciaRepository.save(incidencia); // Guardar la incidencia con el nuevo estado
-            } else {
-                throw new RuntimeException("Estado 'EN_PROCESO' no encontrado en la base de datos.");
+    /**
+     * Busca un ticket específico para un cliente, asegurándose de que le pertenezca.
+     * @param idTicket ID del ticket.
+     * @param idCliente ID del cliente.
+     * @return La incidencia si pertenece al cliente, de lo contrario null.
+     */
+    public Incidencia buscarTicketCliente(Integer idTicket, Integer idCliente) {
+        Optional<Incidencia> incidenciaOptional = incidenciaRepository.findById(idTicket);
+        if (incidenciaOptional.isPresent()) {
+            Incidencia incidencia = incidenciaOptional.get();
+            if (incidencia.getCliente().getIdUsuario().equals(idCliente)) {
+                return incidencia;
             }
         }
+        return null;
     }
 }

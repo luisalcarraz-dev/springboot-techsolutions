@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Acta de Conformidad | Cliente</title>
+    <!-- Aquí puedes incluir tus CSS si los tienes -->
+</head>
+<body>
+
+<header>
+    Acta de Conformidad de Atención
+    <div style="float: right; margin-right: 20px;">
+        <span th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Nombre Cliente</span>
+        <a th:href="@{/logout}" class="logout" style="margin-left: 15px;">Cerrar Sesión</a>
+    </div>
+</header>
+
+<div class="container">
+    <h2>Datos del Ticket</h2>
+
+    <div class="info-grid">
+        <div class="info-box">
+            <span>N° Ticket</span>
+            <span th:text="${ticket.codigoTicket}">TCK-000160</span>
+        </div>
+        <div class="info-box">
+            <span>Fecha de Solicitud Cierre</span>
+            <!-- Asumo que la fecha de solicitud de cierre se guardará en algun lugar,
+                 o se usará la fecha de cambio de estado a PENDIENTE_CONFORMIDAD_CLIENTE -->
+            <span th:text="${#temporals.format(ticket.fechaCierre, 'dd/MM/yyyy')}">07/02/2026</span>
+        </div>
+        <div class="info-box">
+            <span>Estado</span>
+            <span th:text="${ticket.estado.nombre}">Pendiente de Conformidad</span>
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-box">
+            <span>Cliente</span>
+            <span th:text="${ticket.cliente.nombres + ' ' + ticket.cliente.apellidos}">Ana Torres</span>
+        </div>
+        <div class="info-box">
+            <span>Técnico</span>
+            <span th:text="${ticket.asignacion != null ? (ticket.asignacion.tecnico.nombres + ' ' + ticket.asignacion.tecnico.apellidos) : 'N/A'}">María Torres</span>
+        </div>
+    </div>
+
+    <h3>Descripción del Incidente</h3>
+    <div class="block" th:text="${ticket.descripcion}">
+        El equipo no reconocía la impresora de red y no permitía
+        imprimir documentos de trabajo.
+    </div>
+
+    <h3>Solución Aplicada (Reporte del Técnico)</h3>
+    <div class="block">
+        <div th:if="${ordenTrabajo != null}">
+            <strong>Diagnóstico:</strong><br>
+            <span th:text="${ordenTrabajo.actividades}">Se corrigió la configuración de red...</span><br><br>
+
+            <strong>Actividades realizadas:</strong><br>
+            <span th:text="${ordenTrabajo.herramientas}">Se reinstalaron los controladores de la impresora...</span><br><br>
+
+            <strong>Observaciones del Técnico:</strong><br>
+            <span th:text="${ordenTrabajo.observaciones}">Validación de impresión correcta.</span>
+        </div>
+        <div th:unless="${ordenTrabajo != null}">
+            El técnico no ha registrado una orden de trabajo o solución aún.
+        </div>
+    </div>
+
+    <form th:action="@{/cliente/ticket/{id}/conformidad(id=${ticket.idIncidencia})}" method="post">
+        <h3>Comentario del Cliente (opcional)</h3>
+        <textarea name="comentarioCliente" placeholder="Puede dejar un comentario sobre la atención recibida..."></textarea>
+
+        <div class="confirm-box">
+            <strong>Confirmación de Conformidad</strong><br><br>
+            Al confirmar, usted declara que la incidencia ha sido
+            solucionada satisfactoriamente y autoriza el cierre
+            definitivo del ticket.
+        </div>
+
+        <div class="actions">
+            <!-- El botón "Volver" podría llevar al dashboard del cliente -->
+            <a th:href="@{/cliente/home}" class="btn btn-reject">Volver</a>
+            <button type="submit" name="accion" value="noConforme" class="btn btn-reject">No Conforme</button>
+            <button type="submit" name="accion" value="conforme" class="btn btn-confirm">Confirmar Conformidad</button>
+        </div>
+    </form>
+</div>
+
+<footer>
+    © 2026 TechSolutions Perú S.A.C. | Sistema de Gestión de Incidencias
+</footer>
+
+</body>
+</html>

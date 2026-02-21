@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Tiempos de Atención</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+        }
+
+        header {
+            background-color: #020617;
+            color: white;
+            padding: 18px 30px;
+            font-size: 20px;
+        }
+        header .logout {
+            color: #ffcc00;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+        header .logout:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    Reporte de Tiempos de Atención (SLA)
+    <div style="float: right; margin-right: 20px;">
+        <span th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Nombre Jefe</span>
+        <a th:href="@{/logout}" class="logout" style="margin-left: 15px;">Cerrar Sesión</a>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Tiempo Promedio de Atención (Horas) - Últimos 5 días</h2>
+        <canvas id="tiempoAtencion"></canvas>
+    </div>
+
+    <div class="card">
+        <h2>Comparación Tiempo Objetivo vs Real por Prioridad</h2>
+        <canvas id="tiempoComparativo"></canvas>
+    </div>
+
+</div>
+
+<footer>
+    © 2026 TechSolutions Perú S.A.C.
+</footer>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+// Gráfico de Tiempo Promedio de Atención
+const tiempoAtencionLabels = /*[[${tiempoAtencionLabels}]]*/ ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+const tiempoAtencionData = /*[[${tiempoAtencionData}]]*/ [3.2, 4.1, 2.8, 5.0, 3.6];
+
+new Chart(document.getElementById('tiempoAtencion'), {
+    type: 'line',
+    data: {
+        labels: tiempoAtencionLabels,
+        datasets: [{
+            label: 'Horas Promedio',
+            data: tiempoAtencionData,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1,
+            fill: false
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Horas'
+                }
+            }
+        }
+    }
+});
+
+// Gráfico de Comparación Tiempo Objetivo vs Real
+const comparativoLabels = /*[[${comparativoLabels}]]*/ ['Alta', 'Media', 'Baja'];
+const comparativoObjetivoData = /*[[${comparativoObjetivoData}]]*/ [4, 8, 16];
+const comparativoRealData = /*[[${comparativoRealData}]]*/ [5.5, 9.2, 14];
+
+new Chart(document.getElementById('tiempoComparativo'), {
+    type: 'bar',
+    data: {
+        labels: comparativoLabels,
+        datasets: [
+            {
+                label: 'Tiempo Objetivo (horas)',
+                data: comparativoObjetivoData,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)', // Azul
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'Tiempo Real (horas)',
+                data: comparativoRealData,
+                backgroundColor: 'rgba(255, 99, 132, 0.6)', // Rojo
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Horas'
+                }
+            }
+        }
+    }
+});
+/*]]>*/
+</script>
+
+</body>
+</html>

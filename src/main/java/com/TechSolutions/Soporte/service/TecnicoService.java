@@ -138,4 +138,28 @@ public class TecnicoService {
 
         incidenciaRepository.save(incidencia); // Guardar la incidencia con el nuevo estado
     }
+    
+    // --- NUEVO MÉTODO: Solicitar cierre de incidencia ---
+    @Transactional
+    public Incidencia solicitarCierreIncidencia(Integer idIncidencia, Integer idTecnico) {
+        Incidencia incidencia = incidenciaRepository.findById(idIncidencia)
+                .orElseThrow(() -> new RuntimeException("Incidencia no encontrada."));
+
+        // Verificar que el técnico está asignado a esta incidencia
+        if (incidencia.getAsignacion() == null || !incidencia.getAsignacion().getTecnico().getIdUsuario().equals(idTecnico)) {
+            throw new RuntimeException("El técnico no está asignado a esta incidencia.");
+        }
+
+        // Obtener el estado 'PENDIENTE_CONFORMIDAD_CLIENTE'
+        EstadoIncidencia estadoPendienteConformidad = estadoIncidenciaRepository.findByNombre("PENDIENTE_CONFORMIDAD_CLIENTE")
+                .orElseThrow(() -> new RuntimeException("Estado 'PENDIENTE_CONFORMIDAD_CLIENTE' no encontrado."));
+
+        // Actualizar el estado de la incidencia
+        incidencia.setEstado(estadoPendienteConformidad);
+        // Opcional: Podrías registrar la fecha de solicitud de cierre en fechaCierre,
+        // y luego la fecha final de cierre cuando el cliente dé conformidad.
+        // incidencia.setFechaCierre(LocalDate.now()); // O considera un nuevo campo fechaSolicitudCierre
+
+        return incidenciaRepository.save(incidencia);
+    }
 }
