@@ -1,73 +1,188 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8" />
-  <title>Detalle Ticket | TechSolutions</title>
+  <meta charset="UTF-8">
+  <title>Detalle del Ticket | Jefe de Soporte</title>
   <style>
-    body{ margin:0; font-family: Arial, Helvetica, sans-serif; background:#f4f6f9; }
-    header{ background:#1e293b; color:#fff; padding:15px 30px; font-size:18px; font-weight:bold; }
-    .wrap{ max-width:900px; margin:26px auto; padding:0 16px; }
-    .card{ background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
-    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
-    .item{ background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; }
-    .label{ font-size:12px; color:#64748b; font-weight:700; text-transform:uppercase; margin-bottom:6px; }
-    .value{ font-size:15px; color:#0f172a; }
-    .actions{ display:flex; gap:10px; margin-top:14px; }
-    a.btn{ text-decoration:none; border:1px solid #cbd5e1; padding:9px 12px; border-radius:8px; color:#0f172a; background:#fff; }
-    a.primary{ background:#0284c7; border-color:#0284c7; color:#fff; }
+    *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+    body{margin:0;background:#f1f5f9}
+    header{background:#020617;color:#fff;padding:16px 30px;display:flex;justify-content:space-between;align-items:center}
+    .header-left{display:flex;flex-direction:column}
+    .header-left span{font-size:14px;opacity:.9}
+    .header-right{display:flex;gap:10px;align-items:center}
+    .header-right a{color:#fff;text-decoration:none;background:#475569;padding:8px 15px;border-radius:5px;font-size:14px}
+    .container{max-width:1100px;margin:30px auto;background:#fff;padding:25px;border-radius:8px;box-shadow:0 6px 14px rgba(0,0,0,.1)}
+    h2{margin-top:0;color:#020617;border-bottom:2px solid #e5e7eb;padding-bottom:8px}
+    h3{margin-top:25px;color:#1e293b}
+    .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:25px}
+    .info-box{background:#f8fafc;padding:12px;border-left:5px solid #2563eb;border-radius:6px;font-size:14px}
+    .info-box span{display:block;font-weight:bold;color:#1e293b;margin-bottom:5px}
+    .status{display:inline-block;padding:5px 12px;border-radius:12px;font-size:12px;font-weight:bold;color:#fff}
+    .abierto{background:#2563eb}
+    .proceso{background:#f59e0b}
+    .atrasado{background:#dc2626}
+    .cerrado{background:#16a34a}
+    .pendiente{background:#7c3aed}
+    .block{background:#f8fafc;border-left:5px solid #64748b;padding:15px;border-radius:6px;margin-bottom:20px;font-size:14px;white-space:pre-line}
+    .tech{border-left-color:#2563eb;background:#eff6ff}
+    .solution{border-left-color:#16a34a;background:#ecfdf5}
+    .empty-message{color:#6b7280;font-style:italic}
+    footer{margin-top:25px;text-align:center;font-size:13px;color:#6b7280}
+    .pill{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:999px;background:#e2e8f0;font-size:12px}
   </style>
 </head>
 <body>
 
-<header>Detalle del Ticket</header>
+<header>
+  <div class="header-left">
+    Detalle del Ticket (Jefe de Soporte)<br>
+    <span th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Carlos Lopez</span>
+  </div>
+  <div class="header-right">
+    <a th:href="@{/soporte/home}">← Volver</a>
+  </div>
+</header>
 
-<div class="wrap">
-  <div class="card">
-    <h2 style="margin:0 0 8px; color:#0f172a;">
-      Ticket <span th:text="${ticket.codigoTicket}">TCK-XXXX</span>
-    </h2>
+<div class="container">
+  <h2>Información del Ticket</h2>
 
-    <div class="grid">
-      <div class="item">
-        <div class="label">Cliente</div>
-        <div class="value" th:text="${ticket.cliente.nombres + ' ' + ticket.cliente.apellidos}">Cliente</div>
-      </div>
-
-      <div class="item">
-        <div class="label">Estado</div>
-        <div class="value" th:text="${ticket.estado.nombre}">ABIERTO</div>
-      </div>
-
-      <div class="item">
-        <div class="label">Fecha</div>
-        <div class="value" th:text="${ticket.fechaRegistro}">2026-02-14</div>
-      </div>
-
-      <div class="item">
-        <div class="label">Canal</div>
-        <div class="value" th:text="${ticket.canalContacto.nombre}">WEB</div>
-      </div>
-
-      <div class="item" style="grid-column:1/-1;">
-        <div class="label">Asunto</div>
-        <div class="value" th:text="${ticket.asunto}">Asunto</div>
-      </div>
-
-      <div class="item" style="grid-column:1/-1;">
-        <div class="label">Descripción</div>
-        <div class="value" th:text="${ticket.descripcion}">Descripción</div>
-      </div>
+  <!-- Fila 1 -->
+  <div class="info-grid">
+    <div class="info-box">
+      <span>N° Ticket</span>
+      <span th:text="${ticket.codigoTicket}">TCK-000000</span>
     </div>
 
-    <div class="actions">
-      <a class="btn" th:href="@{/soporte/home}">Volver</a>
+    <div class="info-box">
+      <span>Fecha Registro</span>
+      <span th:text="${#temporals.format(ticket.fechaRegistro, 'dd/MM/yyyy HH:mm')}">--/--/---- --:--</span>
+      <span class="pill" th:text="${ticket.canalContacto != null ? ticket.canalContacto.nombre : 'N/D'}">WEB</span>
+    </div>
 
-      <!-- Próximo paso: Clasificar / Asignar -->
-      <!-- <a class="btn primary" th:href="@{/soporte/clasificar/{id}(id=${ticket.idIncidencia})}">Clasificar</a> -->
-      <!-- <a class="btn primary" th:href="@{/soporte/asignar/{id}(id=${ticket.idIncidencia})}">Asignar</a> -->
+    <div class="info-box">
+      <span>Estado</span>
+      <span class="status"
+            th:with="
+              estadoNombre=${ticket.estado != null ? ticket.estado.nombre : 'N/D'},
+              fechaReg=${ticket.fechaRegistro},
+              esAtrasado=${(estadoNombre == 'ABIERTO' or estadoNombre == 'EN_PROCESO') and fechaReg.toLocalDate().isBefore(T(java.time.LocalDate).now().minusDays(2))}"
+            th:classappend="${estadoNombre == 'ABIERTO' ? 'abierto' :
+                             (estadoNombre == 'EN_PROCESO' ? 'proceso' :
+                             (estadoNombre == 'PENDIENTE_CONFORMIDAD_CLIENTE' ? 'pendiente' :
+                             (estadoNombre == 'CERRADO' ? 'cerrado' :
+                             (esAtrasado ? 'atrasado' : ''))))}"
+            th:text="${estadoNombre == 'ABIERTO' ? 'ABIERTO' :
+                      (estadoNombre == 'EN_PROCESO' ? 'EN PROCESO' :
+                      (estadoNombre == 'PENDIENTE_CONFORMIDAD_CLIENTE' ? 'PENDIENTE CONFORMIDAD' :
+                      (estadoNombre == 'CERRADO' ? 'CERRADO' :
+                      (esAtrasado ? 'ATRASADO' : estadoNombre))))}">
+        ESTADO
+      </span>
     </div>
   </div>
+
+  <!-- Fila 2 -->
+  <div class="info-grid">
+    <div class="info-box">
+      <span>Solicitante</span>
+      <span th:text="${ticket.cliente != null ? (ticket.cliente.nombres + ' ' + ticket.cliente.apellidos) : 'N/D'}">Cliente</span>
+    </div>
+
+    <div class="info-box">
+      <span>Prioridad</span>
+      <span th:text="${ticket.clasificacion != null ? ticket.clasificacion.prioridad.nombre : 'Sin clasificar'}">N/A</span>
+    </div>
+
+    <div class="info-box">
+      <span>Técnico Asignado</span>
+      <span th:if="${ticket.asignacion != null and ticket.asignacion.activa}"
+            th:text="${ticket.asignacion.tecnico.nombres + ' ' + ticket.asignacion.tecnico.apellidos}">
+        Técnico
+      </span>
+      <span th:if="${ticket.asignacion == null or !ticket.asignacion.activa}">
+        Sin asignar
+      </span>
+    </div>
+  </div>
+
+  <h3>Asunto</h3>
+  <div class="block" th:text="${ticket.asunto}">Asunto...</div>
+
+  <h3>Descripción del Incidente</h3>
+  <div class="block" th:text="${ticket.descripcion}">Descripción...</div>
+
+  <h3>Solución / Orden de Trabajo</h3>
+  <div class="block solution" th:if="${ordenTrabajo != null}">
+    <strong>Inicio:</strong>
+    <span th:text="${ordenTrabajo.fechaInicio != null ? #temporals.format(ordenTrabajo.fechaInicio, 'dd/MM/yyyy HH:mm') : 'N/D'}">N/D</span>
+    <br>
+    <strong>Fin:</strong>
+    <span th:text="${ordenTrabajo.fechaFin != null ? #temporals.format(ordenTrabajo.fechaFin, 'dd/MM/yyyy HH:mm') : 'N/D'}">N/D</span>
+    <br><br>
+
+    <strong>Actividades:</strong><br>
+    <span th:text="${ordenTrabajo.actividades}">...</span><br><br>
+
+    <strong>Herramientas:</strong><br>
+    <span th:text="${ordenTrabajo.herramientas != null ? ordenTrabajo.herramientas : 'N/D'}">...</span><br><br>
+
+    <strong>Observaciones:</strong><br>
+    <span th:text="${ordenTrabajo.observaciones != null ? ordenTrabajo.observaciones : 'N/D'}">...</span><br><br>
+
+    <strong>Recomendaciones:</strong><br>
+    <span th:text="${ordenTrabajo.recomendaciones != null ? ordenTrabajo.recomendaciones : 'N/D'}">...</span>
+  </div>
+
+  <div class="block solution empty-message" th:if="${ordenTrabajo == null}">
+    No hay orden de trabajo registrada para este ticket.
+  </div>
+
+  <h3>Historial de Atención</h3>
+
+  <div class="block" style="border-left-color:#0ea5e9;background:#e0f2fe;color:#0c4a6e;">
+    <strong>🧾 Registro del Ticket</strong><br>
+    <span th:text="${#temporals.format(ticket.fechaRegistro, 'dd/MM/yyyy HH:mm')}">--/--/---- --:--</span>
+  </div>
+
+  <div class="block" style="border-left-color:#f59e0b;background:#fff7ed;color:#7c2d12;"
+       th:if="${ticket.asignacion != null}">
+    <strong>👨‍🔧 Asignado a Técnico</strong><br>
+    <span th:text="${ticket.asignacion.tecnico.nombres + ' ' + ticket.asignacion.tecnico.apellidos}">Técnico</span><br>
+    <span th:text="${ticket.asignacion.fechaAsignacion != null ? #temporals.format(ticket.asignacion.fechaAsignacion, 'dd/MM/yyyy HH:mm') : 'N/D'}">--/--/---- --:--</span>
+  </div>
+
+  <div class="block" style="border-left-color:#7c3aed;background:#f3e8ff;color:#4c1d95;"
+       th:if="${ticket.estado != null and ticket.estado.nombre == 'PENDIENTE_CONFORMIDAD_CLIENTE'}">
+    <strong>📩 Solicitud de Conformidad</strong><br>
+    El técnico solicitó el cierre al cliente.
+  </div>
+
+  <div class="block" style="border-left-color:#16a34a;background:#ecfdf5;color:#065f46;"
+       th:if="${ticket.fechaCierre != null}">
+    <strong>✅ Confirmación del Cliente / Cierre</strong><br>
+    <span th:text="${#temporals.format(ticket.fechaCierre, 'dd/MM/yyyy HH:mm')}">--/--/---- --:--</span>
+  </div>
+
+  <!-- Lista completa del historial (si existe) -->
+  <div class="block tech" th:if="${ticket.historial != null and !ticket.historial.empty}">
+    <strong>📌 Eventos registrados</strong><br><br>
+    <div th:each="evento : ${ticket.historial}">
+      • <span th:text="${evento.tipoEvento}">TIPO</span> —
+      <span th:text="${evento.fechaEvento != null ? #temporals.format(evento.fechaEvento, 'dd/MM/yyyy HH:mm') : ''}"></span><br>
+      <span th:text="${evento.detalle}">Detalle...</span>
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:10px 0;">
+    </div>
+  </div>
+
+  <div class="block empty-message" th:if="${ticket.historial == null or ticket.historial.empty}">
+    No hay historial registrado aún.
+  </div>
+
 </div>
+
+<footer>
+  © 2026 TechSolutions Perú S.A.C. | Detalle del Ticket (Jefe)
+</footer>
 
 </body>
 </html>

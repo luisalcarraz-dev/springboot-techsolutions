@@ -1,6 +1,7 @@
 package com.TechSolutions.Soporte.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -30,6 +31,6 @@ public class ActaConformidad {
     private String comentario;
 
     @Column(name = "fecha_conformidad", nullable = false)
-    private LocalDate fechaConformidad;
+    private LocalDateTime fechaConformidad;
 }
 

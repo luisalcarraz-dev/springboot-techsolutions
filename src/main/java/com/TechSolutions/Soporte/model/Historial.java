@@ -1,6 +1,7 @@
 package com.TechSolutions.Soporte.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -30,6 +31,6 @@ public class Historial {
     private String detalle;
 
     @Column(name = "fecha_evento", nullable = false)
-    private LocalDate fechaEvento;
+    private LocalDateTime fechaEvento;
 }
 

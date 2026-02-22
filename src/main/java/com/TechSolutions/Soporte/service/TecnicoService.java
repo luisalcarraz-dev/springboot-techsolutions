@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class TecnicoService {
                 .count();
 
         long cerradasHoy = incidencias.stream()
-                .filter(i -> i.getEstado() != null && "CERRADO".equals(i.getEstado().getNombre()) && i.getFechaRegistro().isEqual(LocalDate.now()))
+                .filter(i -> i.getEstado() != null && "CERRADO".equals(i.getEstado().getNombre()) && i.getFechaRegistro().isEqual(LocalDateTime.now()))
                 .count();
 
         estadisticas.put("totalAsignadas", totalAsignadas);
@@ -112,7 +113,7 @@ public class TecnicoService {
         ordenExistente.setObservaciones(ordenTrabajo.getObservaciones());
         // Solo actualizar fechaInicio si es una nueva orden de trabajo
         if (ordenExistente.getIdOrden() == null) {
-            ordenExistente.setFechaInicio(LocalDate.now());
+            ordenExistente.setFechaInicio(LocalDateTime.now());
         }
 
         // 3. Guardar la Orden de Trabajo
@@ -131,7 +132,7 @@ public class TecnicoService {
             // Si el técnico selecciona "CERRADO" y pulsa "Solicitar Cierre", la incidencia se cerrará.
             // Podrías añadir lógica aquí para enviar notificaciones o cambiar el estado a "PENDIENTE_APROBACION_CIERRE"
             if ("CERRADO".equals(nuevoEstado.get().getNombre())) {
-                ordenExistente.setFechaFin(LocalDate.now()); // Si se cierra, registra la fecha de fin
+                ordenExistente.setFechaFin(LocalDateTime.now()); // Si se cierra, registra la fecha de fin
                 ordenTrabajoRepository.save(ordenExistente); // Guardar la orden de trabajo actualizada con fecha de fin
             }
         }

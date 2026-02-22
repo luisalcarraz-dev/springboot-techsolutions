@@ -1,6 +1,7 @@
 package com.TechSolutions.Soporte.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -40,10 +41,10 @@ public class Incidencia {
     private EstadoIncidencia estado;
 
     @Column(name = "fecha_registro", nullable = false)
-    private LocalDate fechaRegistro;
+    private LocalDateTime fechaRegistro;
     
     @Column(name = "fecha_cierre")
-    private LocalDate fechaCierre;
+    private LocalDateTime fechaCierre;
     
  // Relación con Clasificación (opcional, puede ser null si no se ha clasificado)
     @OneToOne(mappedBy = "incidencia", cascade = CascadeType.ALL)

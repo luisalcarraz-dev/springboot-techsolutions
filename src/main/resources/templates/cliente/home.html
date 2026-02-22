@@ -148,6 +148,9 @@
 	    .proceso { background-color: #f59e0b; }
 	    .atrasado { background-color: #dc2626; }
 	    .cerrado { background-color: #16a34a; }
+		
+		.card.pending-conformity { border-left: 6px solid #7c3aed; }
+		.status.pending-conformity { background-color: #7c3aed; color: #fff; }
 
 	    .btn {
 	        padding: 6px 12px;
@@ -176,6 +179,7 @@
 	        font-size: 13px;
 	        color: #6b7280;
 	    }
+
 	</style>
 </head>
 <body>
@@ -245,23 +249,24 @@
 			                    <td th:text="${#temporals.format(ticket.fechaRegistro, 'dd/MM/yyyy')}">06/02/2026</td>
 			                    <td th:text="${ticket.asunto}">Impresora no responde</td>
 			                    <td>
-			                        <span class="status"
-			                              th:with="
-			                                  estadoNombre=${ticket.estado.nombre},
-			                                  fechaRegistroTicket=${ticket.fechaRegistro},
-			                                  esAtrasado=${(estadoNombre == 'ABIERTO' or estadoNombre == 'EN_PROCESO') and fechaRegistroTicket.isBefore(T(java.time.LocalDate).now().minusDays(2))}"
-			                              th:classappend="${estadoNombre == 'ABIERTO' ? 'abierto' :
-			                                               (estadoNombre == 'EN_PROCESO' ? 'proceso' :
-			                                               (estadoNombre == 'PENDIENTE_CONFORMIDAD_CLIENTE' ? 'pending-conformity' :
-			                                               (estadoNombre == 'CERRADO' ? 'cerrado' :
-			                                               (esAtrasado ? 'atrasado' : ''))))}"
-			                              th:text="${estadoNombre == 'ABIERTO' ? 'ABIERTO' :
-			                                        (estadoNombre == 'EN_PROCESO' ? 'EN PROCESO' :
-			                                        (estadoNombre == 'PENDIENTE_CONFORMIDAD_CLIENTE' ? 'PENDIENTE CONFORMIDAD' :
-			                                        (estadoNombre == 'CERRADO' ? 'CERRADO' :
-			                                        (esAtrasado ? 'ATRASADO' : estadoNombre))))}"> <!-- Fallback en caso de estado desconocido -->
-			                            ABIERTO
-			                        </span>
+									<span class="status"
+									      th:with="
+									          estadoNombre=${ticket.estado.nombre},
+									          fechaRegistroTicket=${ticket.fechaRegistro},
+									          esAtrasado=${(estadoNombre == 'ABIERTO' or estadoNombre == 'EN_PROCESO')
+									                      and fechaRegistroTicket.toLocalDate().isBefore(T(java.time.LocalDate).now().minusDays(2))}"
+									      th:classappend="${estadoNombre == 'ABIERTO' ? 'abierto' :
+									                       (estadoNombre == 'EN_PROCESO' ? 'proceso' :
+									                       (estadoNombre == 'PENDIENTE_CONFORMIDAD_CLIENTE' ? 'pending-conformity' :
+									                       (estadoNombre == 'CERRADO' ? 'cerrado' :
+									                       (esAtrasado ? 'atrasado' : ''))))}"
+									      th:text="${estadoNombre == 'ABIERTO' ? 'ABIERTO' :
+									                (estadoNombre == 'EN_PROCESO' ? 'EN PROCESO' :
+									                (estadoNombre == 'PENDIENTE_CONFORMIDAD_CLIENTE' ? 'PENDIENTE CONFORMIDAD' :
+									                (estadoNombre == 'CERRADO' ? 'CERRADO' :
+									                (esAtrasado ? 'ATRASADO' : estadoNombre))))}">
+									    ABIERTO
+									</span>
 			                    </td>
 			                    <td>
 			                        <a th:href="@{/cliente/ticket/{id}(id=${ticket.idIncidencia})}"

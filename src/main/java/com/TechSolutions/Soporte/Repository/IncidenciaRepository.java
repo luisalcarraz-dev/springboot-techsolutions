@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -20,20 +20,23 @@ public interface IncidenciaRepository extends JpaRepository<Incidencia, Integer>
     List<Incidencia> findByCliente_IdUsuarioOrderByIdIncidenciaDesc(Integer idCliente);
 
     Incidencia findByIdIncidenciaAndCliente_IdUsuario(Integer idIncidencia, Integer idCliente);
-    
-    // Nuevo método para obtener incidencias asignadas a un técnico
-    // Mantenemos el IdUsuario como Integer
-    @Query("SELECT i FROM Incidencia i JOIN i.asignacion a WHERE a.tecnico.idUsuario = :tecnicoId") // Asegúrate que 'idUsuario' es el nombre del campo ID en tu entidad Usuario
-    List<Incidencia> findIncidenciasByTecnicoId(@Param("tecnicoId") Integer tecnicoId);// Cambiado a Integer
-    
-    // Nuevo método para buscar incidencias por fecha de registro
-    List<Incidencia> findByFechaRegistro(LocalDate fechaRegistro);
-    
-    @Query("SELECT i FROM Incidencia i WHERE i.fechaCierre = :fechaCierre AND i.estado.nombre = 'CERRADO'")
-    List<Incidencia> findByFechaCierre(@Param("fechaCierre") LocalDate fechaCierre);
 
-    // Nuevo método para encontrar incidencias cerradas por prioridad
-    @Query("SELECT i FROM Incidencia i JOIN i.clasificacion c WHERE c.prioridad.idPrioridad = :prioridadId AND i.estado.nombre = 'CERRADO'")
+    // Incidencias asignadas a un técnico
+    @Query("SELECT i FROM Incidencia i JOIN i.asignacion a WHERE a.tecnico.idUsuario = :tecnicoId")
+    List<Incidencia> findIncidenciasByTecnicoId(@Param("tecnicoId") Integer tecnicoId);
+
+    // ✅ (REEMPLAZO) Incidencias registradas dentro de un día/rango
+    @Query("SELECT i FROM Incidencia i WHERE i.fechaRegistro >= :inicio AND i.fechaRegistro < :fin")
+    List<Incidencia> findByFechaRegistroBetween(@Param("inicio") LocalDateTime inicio,
+                                                @Param("fin") LocalDateTime fin);
+
+    // ✅ (REEMPLAZO) Incidencias cerradas dentro de un día/rango
+    @Query("SELECT i FROM Incidencia i WHERE i.fechaCierre >= :inicio AND i.fechaCierre < :fin AND i.estado.nombre = 'CERRADO'")
+    List<Incidencia> findCerradasByFechaCierreBetween(@Param("inicio") LocalDateTime inicio,
+                                                      @Param("fin") LocalDateTime fin);
+
+    // Incidencias cerradas por prioridad
+    @Query("SELECT i FROM Incidencia i JOIN i.clasificacion c " +
+           "WHERE c.prioridad.idPrioridad = :prioridadId AND i.estado.nombre = 'CERRADO'")
     List<Incidencia> findIncidenciasCerradasByPrioridad(@Param("prioridadId") Integer prioridadId);
-
 }

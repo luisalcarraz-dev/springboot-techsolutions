@@ -356,7 +356,7 @@
 
     <!-- Formulario de Orden de Trabajo para GUARDAR AVANCE -->
     <h3>Detalle de la Orden de Trabajo</h3>
-    <form th:action="@{/tecnico/ticket/{id}/guardar-orden-trabajo(id=${ticket.idIncidencia})}" method="post" th:object="${ordenTrabajo}">
+    <form th:action="@{/tecnico/ticket/{idIncidencia}/guardar-avance(idIncidencia=${ticket.idIncidencia})}" method="post" th:object="${ordenTrabajo}">
         <!-- Campo oculto para el ID de la orden de trabajo si ya existe -->
         <input type="hidden" th:field="*{idOrden}" />
 
@@ -374,21 +374,7 @@
             <label for="observaciones">Observaciones/Diagnóstico</label>
             <textarea id="observaciones" th:field="*{observaciones}" placeholder="Describa el diagnóstico, observaciones adicionales o próximos pasos..."></textarea>
         </div>
-
-        <!-- El campo para cambiar el estado del ticket (si lo quieres permitir al técnico) -->
-        <!-- Si el técnico puede cambiar el estado a "CERRADO" directamente, esto podría entrar en conflicto con el flujo de conformidad del cliente.
-             Lo ideal es que solo pueda cambiarlo a "EN_PROCESO" o "RESUELTO_PENDIENTE_CIERRE_TECNICO" antes de solicitar la conformidad.
-             Por ahora, lo mantendremos simple y el botón de "Solicitar Cierre" manejará el cambio de estado.
-        <div class="form-group">
-            <label for="estadoTicket">Cambiar Estado del Ticket</label>
-            <select id="estadoTicket" name="nuevoEstadoId">
-                <option th:each="estado : ${estadosDisponibles}"
-                        th:value="${estado.idEstado}"
-                        th:text="${estado.nombre}"
-                        th:selected="${estado.idEstado == ticket.estado.idEstado}"></option>
-            </select>
-        </div>
-        -->
+		<input type="hidden" name="nuevoEstadoId" th:value="${ticket.estado.idEstado}">
 
         <div class="actions">
             <button type="submit" class="btn btn-save">Guardar Avance</button>

@@ -1,73 +1,179 @@
+Create database tech_solutions;
+USE tech_solutions;
 
-INSERT INTO rol (nombre) VALUES ('JEFE_SOPORTE');
+-- 1) ROLES (no falla si ya existen)
+INSERT INTO rol(nombre) VALUES ('JEFE_SOPORTE')
+ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
 
-select * from rol;
+INSERT INTO rol(nombre) VALUES ('TECNICO')
+ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
 
+-- (Opcional) ver roles
+SELECT * FROM rol;
+
+
+-- 2) USUARIO JEFE (no falla si ya existe username/correo/dni)
 INSERT INTO usuario (apellidos, correo, dni, nombres, password_hash, username, id_rol)
+VALUES (
+  'Lopez',
+  'jefe@techsolutions.com',
+  '44556677',
+  'Carlos',
+  '$2a$10$Qfqp08KZBmrynA3DeqxR0eyYWJHOZJESuY2HcU45okYa.ufrIzwrC',
+  'jefe',
+  (SELECT id_rol FROM rol WHERE nombre='JEFE_SOPORTE')
+)
+ON DUPLICATE KEY UPDATE
+  apellidos      = VALUES(apellidos),
+  correo         = VALUES(correo),
+  dni            = VALUES(dni),
+  nombres        = VALUES(nombres),
+  password_hash  = VALUES(password_hash),
+  id_rol         = VALUES(id_rol);
 
-VALUES
 
-('Lopez', 'jefe@techsolutions.com', '44556677', 'Carlos',
-
-'$2a$10$Qfqp08KZBmrynA3DeqxR0eyYWJHOZJESuY2HcU45okYa.ufrIzwrC',
-
-'jefe',
-
-(SELECT id_rol FROM rol WHERE nombre='JEFE_SOPORTE'));
-
---joan inserts
--- Insertar Tipos de Incidencia (si no existen ya)
+-- 3) TIPOS DE INCIDENCIA (solo si tu tabla tiene UNIQUE(nombre))
 INSERT INTO tipo_incidencia (nombre) VALUES
 ('Fallo de Hardware'),
 ('Problema de Software'),
 ('Consulta Técnica'),
 ('Problema de Red'),
 ('Requerimiento de Servicio')
-ON DUPLICATE KEY UPDATE nombre=VALUES(nombre); -- Esto actualizará si ya existen los nombres
+ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
 
--- Insertar Prioridades (si no existen ya)
+
+-- 4) PRIORIDADES (solo si tu tabla tiene UNIQUE(nombre))
 INSERT INTO prioridad (nombre, orden_prioridad) VALUES
 ('Baja', 1),
 ('Media', 2),
 ('Alta', 3),
 ('Crítica', 4)
-ON DUPLICATE KEY UPDATE nombre=VALUES(nombre), orden_prioridad=VALUES(orden_prioridad); -- Esto actualizará si ya existen los nombres
+ON DUPLICATE KEY UPDATE
+  nombre = VALUES(nombre),
+  orden_prioridad = VALUES(orden_prioridad);
 
--- PASO 1: Definir el ID del rol 'TECNICO'
--- El id_rol para 'TECNICO' es 2.
-SET @id_rol_tecnico = 2;
 
--- PASO 2: Insertar los nuevos usuarios técnicos
-
--- Técnico 1: Ana García
+-- 5) TECNICOS (IMPORTANTE: DNI es CHAR(8) normalmente; usa 8 dígitos)
 INSERT INTO usuario (apellidos, correo, dni, nombres, password_hash, username, id_rol)
 VALUES (
-    'García',
-    'ana.garcia@techsolutions.com',
-    '123456789', -- DNI de ejemplo
-    'Ana',
-    '$2a$10$oJtzNRaRrI2DIRc7L2eAJOjo2bNztMr.hqs22XqbNw3rV97IhTEey', -- REEMPLAZAR con un hash BCrypt real para la contraseña de Ana
-    'tecnico3',
-    @id_rol_tecnico
-);
+  'García',
+  'ana.garcia@techsolutions.com',
+  '12345678',
+  'Ana',
+  '$2a$10$oJtzNRaRrI2DIRc7L2eAJOjo2bNztMr.hqs22XqbNw3rV97IhTEey',
+  'tecnico3',
+  (SELECT id_rol FROM rol WHERE nombre='TECNICO')
+)
+ON DUPLICATE KEY UPDATE
+  apellidos      = VALUES(apellidos),
+  correo         = VALUES(correo),
+  dni            = VALUES(dni),
+  nombres        = VALUES(nombres),
+  password_hash  = VALUES(password_hash),
+  id_rol         = VALUES(id_rol);
 
--- Técnico 2: Roberto Fernández
 INSERT INTO usuario (apellidos, correo, dni, nombres, password_hash, username, id_rol)
 VALUES (
-    'Fernández',
-    'roberto.fernandez@techsolutions.com',
-    '987654321', -- DNI de ejemplo
-    'Roberto',
-    '$2a$10$pLqOCW0ymqps/ViBB467Ou72vIR8gFIfF/R0YwawlbE0.Cvi3c.GG', -- REEMPLAZAR con un hash BCrypt real para la contraseña de Roberto
-    'tecnico4',
-    @id_rol_tecnico
-);
---tecnico3 contraseña tecnico3
---tecnico4 contraseña tecnico4
+  'Fernández',
+  'roberto.fernandez@techsolutions.com',
+  '87654321',
+  'Roberto',
+  '$2a$10$pLqOCW0ymqps/ViBB467Ou72vIR8gFIfF/R0YwawlbE0.Cvi3c.GG',
+  'tecnico4',
+  (SELECT id_rol FROM rol WHERE nombre='TECNICO')
+)
+ON DUPLICATE KEY UPDATE
+  apellidos      = VALUES(apellidos),
+  correo         = VALUES(correo),
+  dni            = VALUES(dni),
+  nombres        = VALUES(nombres),
+  password_hash  = VALUES(password_hash),
+  id_rol         = VALUES(id_rol);
 
 
-
+-- 6) ESTADO_INCIDENCIA (si existe esa tabla y quieres el estado)
 ALTER TABLE estado_incidencia MODIFY COLUMN nombre VARCHAR(50);
 
-INSERT INTO estado_incidencia (nombre) VALUES ('PENDIENTE_CONFORMIDAD_CLIENTE')
+INSERT INTO estado_incidencia (nombre)
+VALUES ('PENDIENTE_CONFORMIDAD_CLIENTE')
 ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
+
+
+-- 7) CLIENTES (cliente1, cliente2, cliente3)  password: Maria1234
+INSERT INTO rol(nombre) VALUES ('CLIENTE')
+ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
+
+INSERT INTO usuario (apellidos, correo, dni, nombres, password_hash, username, id_rol)
+VALUES
+('Quispe',  'cliente1@techsolutions.com', '70000001', 'Maria',
+ '$2a$10$orArvLNXbHz9CX2tbL3Ode6ZusliAdR/dAEOi0m3iiKugLzKjpasq',
+ 'cliente1',
+ (SELECT id_rol FROM rol WHERE nombre='CLIENTE')),
+
+('Rojas',   'cliente2@techsolutions.com', '70000002', 'Maria',
+ '$2a$10$orArvLNXbHz9CX2tbL3Ode6ZusliAdR/dAEOi0m3iiKugLzKjpasq',
+ 'cliente2',
+ (SELECT id_rol FROM rol WHERE nombre='CLIENTE')),
+
+('Flores',  'cliente3@techsolutions.com', '70000003', 'Maria',
+ '$2a$10$orArvLNXbHz9CX2tbL3Ode6ZusliAdR/dAEOi0m3iiKugLzKjpasq',
+ 'cliente3',
+ (SELECT id_rol FROM rol WHERE nombre='CLIENTE'))
+ON DUPLICATE KEY UPDATE
+  apellidos      = VALUES(apellidos),
+  correo         = VALUES(correo),
+  dni            = VALUES(dni),
+  nombres        = VALUES(nombres),
+  password_hash  = VALUES(password_hash),
+  id_rol         = VALUES(id_rol);
+  
+
+-- 1) Asegurar que el ID=1 sea ABIERTO
+UPDATE estado_incidencia
+SET nombre = 'ABIERTO'
+WHERE id_estado = 1;
+
+-- 2) Insertar los demás estados que tu sistema usa
+INSERT INTO estado_incidencia (nombre) VALUES
+('EN_PROCESO'),
+('PENDIENTE_CONFORMIDAD_CLIENTE'),
+('CERRADO')
+ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
+
+-- 3) Crear el canal WEB con ID=1 (obligatorio por tu service)
+INSERT INTO canal_contacto (id_canal, nombre)
+VALUES (1, 'WEB')
+ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
+
+SELECT * FROM estado_incidencia ORDER BY id_estado;
+SELECT * FROM canal_contacto ORDER BY id_canal;
+
+-- JEFE SOPORTE
+
+-- Usuario: jefe
+
+-- Contraseña: jefe1234
+
+-- TÉCNICOS
+
+-- Usuario: tecnico3
+
+-- Contraseña: tecnico3
+
+-- Usuario: tecnico4
+
+-- Contraseña: tecnico4
+
+-- CLIENTES (usuarios)
+
+-- Usuario: cliente1
+
+-- Contraseña: Maria1234
+
+-- Usuario: cliente2
+
+-- Contraseña: Maria1234
+
+-- Usuario: cliente3
+
+-- Contraseña: Maria1234

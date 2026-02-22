@@ -1,5 +1,5 @@
 package com.TechSolutions.Soporte.model;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -25,7 +25,7 @@ public class Asignacion {
     private String motivo;
 
     @Column(name = "fecha_asignacion", nullable = false)
-    private LocalDate fechaAsignacion;
+    private LocalDateTime fechaAsignacion;
 
     @Column(name = "activa", nullable = false)
     private Boolean activa;

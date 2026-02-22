@@ -48,6 +48,7 @@ public class IncidenciaController {
 
         // Guardar y recuperar el ticket con su ID
         Incidencia guardada = incidenciaService.registrarIncidencia(incidencia);
+        
 
         // Mostrar ticket generado
         return "redirect:/incidencias/ticket/" + guardada.getIdIncidencia();

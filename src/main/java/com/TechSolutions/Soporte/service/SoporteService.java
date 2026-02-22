@@ -1,49 +1,29 @@
-// src/main/java/com/TechSolutions.Soporte/service/SoporteService.java
 package com.TechSolutions.Soporte.service;
 
-import com.TechSolutions.Soporte.Repository.AsignacionRepository;
-import com.TechSolutions.Soporte.Repository.ClasificacionRepository;
-import com.TechSolutions.Soporte.Repository.EstadoIncidenciaRepository;
-import com.TechSolutions.Soporte.Repository.IncidenciaRepository;
-import com.TechSolutions.Soporte.Repository.OrdenTrabajoRepository;
-import com.TechSolutions.Soporte.Repository.PrioridadRepository;
-import com.TechSolutions.Soporte.Repository.TipoIncidenciaRepository;
-import com.TechSolutions.Soporte.Repository.UsuarioRepository;
+import com.TechSolutions.Soporte.Repository.*;
 import com.TechSolutions.Soporte.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit; // Para calcular diferencias de tiempo
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class SoporteService {
 
-    @Autowired
-    private IncidenciaRepository incidenciaRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
-    private TipoIncidenciaRepository tipoIncidenciaRepository;
-    @Autowired
-    private PrioridadRepository prioridadRepository;
-    @Autowired
-    private AsignacionRepository asignacionRepository;
-    @Autowired
-    private ClasificacionRepository clasificacionRepository;
-    @Autowired
-    private EstadoIncidenciaRepository estadoIncidenciaRepository;
-    @Autowired
-    private OrdenTrabajoRepository ordenTrabajoRepository;
+    @Autowired private IncidenciaRepository incidenciaRepository;
+    @Autowired private UsuarioRepository usuarioRepository;
+    @Autowired private TipoIncidenciaRepository tipoIncidenciaRepository;
+    @Autowired private PrioridadRepository prioridadRepository;
+    @Autowired private AsignacionRepository asignacionRepository;
+    @Autowired private ClasificacionRepository clasificacionRepository;
+    @Autowired private EstadoIncidenciaRepository estadoIncidenciaRepository;
+    @Autowired private OrdenTrabajoRepository ordenTrabajoRepository;
 
-    // Clase DTO para la carga de trabajo de técnicos
     public static class CargaTrabajoTecnicoDTO {
         private Usuario tecnico;
         private long asignados;
@@ -56,7 +36,6 @@ public class SoporteService {
             this.enAtencion = enAtencion;
             this.atrasados = atrasados;
         }
-
         public Usuario getTecnico() { return tecnico; }
         public long getAsignados() { return asignados; }
         public long getEnAtencion() { return enAtencion; }
@@ -73,36 +52,46 @@ public class SoporteService {
         long abiertos = todasLasIncidencias.stream()
                 .filter(i -> i.getEstado() != null && "ABIERTO".equals(i.getEstado().getNombre()))
                 .count();
+
         long enAtencion = todasLasIncidencias.stream()
                 .filter(i -> i.getEstado() != null && "EN_PROCESO".equals(i.getEstado().getNombre()))
                 .count();
+
         long atrasados = todasLasIncidencias.stream()
-                .filter(i -> i.getEstado() != null &&
-                             ("ABIERTO".equals(i.getEstado().getNombre()) || "EN_PROCESO".equals(i.getEstado().getNombre())) &&
-                             i.getFechaRegistro().isBefore(LocalDate.now().minusDays(2)))
+                .filter(i -> i.getEstado() != null
+                        && i.getFechaRegistro() != null
+                        && ("ABIERTO".equals(i.getEstado().getNombre()) || "EN_PROCESO".equals(i.getEstado().getNombre()))
+                        && i.getFechaRegistro().isBefore(LocalDateTime.now().minusDays(2)))
                 .count();
+
         long cerradosMes = todasLasIncidencias.stream()
-                .filter(i -> i.getEstado() != null && "CERRADO".equals(i.getEstado().getNombre()) &&
-                             i.getFechaRegistro().getMonth() == LocalDate.now().getMonth() &&
-                             i.getFechaRegistro().getYear() == LocalDate.now().getYear())
+                .filter(i -> i.getEstado() != null
+                        && i.getFechaRegistro() != null
+                        && "CERRADO".equals(i.getEstado().getNombre())
+                        && i.getFechaRegistro().getMonth() == LocalDate.now().getMonth()
+                        && i.getFechaRegistro().getYear() == LocalDate.now().getYear())
                 .count();
 
         kpis.put("abiertos", abiertos);
         kpis.put("enAtencion", enAtencion);
         kpis.put("atrasados", atrasados);
         kpis.put("cerradosMes", cerradosMes);
-
         return kpis;
     }
 
     public List<Incidencia> getIncidenciasAtrasadasCriticas() {
         List<Incidencia> todas = incidenciaRepository.findAll();
+
         return todas.stream()
-                .filter(i -> i.getEstado() != null &&
-                             (("ABIERTO".equals(i.getEstado().getNombre()) || "EN_PROCESO".equals(i.getEstado().getNombre())) &&
-                             i.getFechaRegistro().isBefore(LocalDate.now().minusDays(2)) ||
-                             (i.getClasificacion() != null && "ALTA".equalsIgnoreCase(i.getClasificacion().getPrioridad().getNombre()))
-                             ))
+                .filter(i -> i.getEstado() != null && i.getFechaRegistro() != null &&
+                        (
+                                (("ABIERTO".equals(i.getEstado().getNombre()) || "EN_PROCESO".equals(i.getEstado().getNombre()))
+                                        && i.getFechaRegistro().isBefore(LocalDateTime.now().minusDays(2)))
+                                        ||
+                                        (i.getClasificacion() != null
+                                                && i.getClasificacion().getPrioridad() != null
+                                                && "ALTA".equalsIgnoreCase(i.getClasificacion().getPrioridad().getNombre()))
+                        ))
                 .sorted((i1, i2) -> i2.getFechaRegistro().compareTo(i1.getFechaRegistro()))
                 .collect(Collectors.toList());
     }
@@ -111,17 +100,22 @@ public class SoporteService {
         List<Usuario> tecnicos = usuarioRepository.findByRol_Nombre("TECNICO");
 
         return tecnicos.stream().map(tecnico -> {
-            List<Incidencia> incidenciasTecnico = incidenciaRepository.findIncidenciasByTecnicoId(tecnico.getIdUsuario());
+            List<Incidencia> incidenciasTecnico =
+                    incidenciaRepository.findIncidenciasByTecnicoId(tecnico.getIdUsuario());
 
             long asignados = incidenciasTecnico.size();
+
             long enAtencion = incidenciasTecnico.stream()
                     .filter(i -> i.getEstado() != null && "EN_PROCESO".equals(i.getEstado().getNombre()))
                     .count();
+
             long atrasados = incidenciasTecnico.stream()
-                    .filter(i -> i.getEstado() != null &&
-                                 ("ABIERTO".equals(i.getEstado().getNombre()) || "EN_PROCESO".equals(i.getEstado().getNombre())) &&
-                                 i.getFechaRegistro().isBefore(LocalDate.now().minusDays(2)))
+                    .filter(i -> i.getEstado() != null
+                            && i.getFechaRegistro() != null
+                            && ("ABIERTO".equals(i.getEstado().getNombre()) || "EN_PROCESO".equals(i.getEstado().getNombre()))
+                            && i.getFechaRegistro().isBefore(LocalDateTime.now().minusDays(2)))
                     .count();
+
             return new CargaTrabajoTecnicoDTO(tecnico, asignados, enAtencion, atrasados);
         }).collect(Collectors.toList());
     }
@@ -143,7 +137,9 @@ public class SoporteService {
     }
 
     @Transactional
-    public Incidencia asignarYClasificarIncidencia(Integer incidenciaId, Integer tipoId, Integer prioridadId, Integer tiempoObjetivoHoras, Integer tecnicoId) {
+    public Incidencia asignarYClasificarIncidencia(Integer incidenciaId, Integer tipoId, Integer prioridadId,
+                                                   Integer tiempoObjetivoHoras, Integer tecnicoId) {
+
         Incidencia incidencia = incidenciaRepository.findById(incidenciaId)
                 .orElseThrow(() -> new RuntimeException("Incidencia no encontrada."));
 
@@ -175,101 +171,68 @@ public class SoporteService {
         }
         asignacion.setTecnico(tecnico);
         asignacion.setMotivo("Asignación por Jefe de Soporte");
-        asignacion.setFechaAsignacion(LocalDate.now());
+        asignacion.setFechaAsignacion(LocalDateTime.now());
         asignacion.setActiva(true);
         asignacionRepository.save(asignacion);
         incidencia.setAsignacion(asignacion);
 
         incidencia.setEstado(estadoEnProceso);
-
         return incidenciaRepository.save(incidencia);
     }
 
-    // --- Métodos para la Revisión de Tickets (Jefe de Soporte) ---
-
-    @Transactional
-    public Incidencia reasignarTecnico(Integer incidenciaId, Integer nuevoTecnicoId, String observacionesJefe) {
-        Incidencia incidencia = incidenciaRepository.findById(incidenciaId)
-                .orElseThrow(() -> new RuntimeException("Incidencia no encontrada."));
-
-        Usuario nuevoTecnico = usuarioRepository.findById(nuevoTecnicoId)
-                .orElseThrow(() -> new RuntimeException("Nuevo técnico no encontrado."));
-
-        Asignacion asignacion = incidencia.getAsignacion();
-        if (asignacion == null) {
-            throw new RuntimeException("La incidencia no tiene una asignación activa para reasignar.");
-        }
-
-        asignacion.setTecnico(nuevoTecnico);
-        asignacion.setMotivo("Reasignación por Jefe de Soporte");
-        asignacion.setFechaAsignacion(LocalDate.now());
-        asignacionRepository.save(asignacion);
-
-        return incidenciaRepository.save(incidencia);
-    }
-
-    @Transactional
-    public void guardarObservacionesJefe(Integer incidenciaId, String observacionesJefe) {
-        Incidencia incidencia = incidenciaRepository.findById(incidenciaId)
-                .orElseThrow(() -> new RuntimeException("Incidencia no encontrada."));
-
-        System.out.println("Observaciones del Jefe de Soporte para incidencia " + incidenciaId + ": " + observacionesJefe);
-    }
-
-    @Transactional
-    public void solicitarApoyo(Integer incidenciaId) {
-        Incidencia incidencia = incidenciaRepository.findById(incidenciaId)
-                .orElseThrow(() -> new RuntimeException("Incidencia no encontrada."));
-
-        System.out.println("Solicitud de apoyo para incidencia: " + incidenciaId);
-    }
-
-    // --- Métodos para Reporte Diario de Incidencias ---
-
+    // ✅ Reporte diario por rango (inicio del día -> inicio del siguiente día)
     public Map<String, Long> getResumenDiarioIncidencias(LocalDate fechaReporte) {
-        List<Incidencia> incidenciasDelDia = incidenciaRepository.findByFechaRegistro(fechaReporte);
+
+        LocalDateTime inicio = fechaReporte.atStartOfDay();
+        LocalDateTime fin = fechaReporte.plusDays(1).atStartOfDay();
+
+        List<Incidencia> incidenciasDelDia = incidenciaRepository.findByFechaRegistroBetween(inicio, fin);
+
         Map<String, Long> resumen = new HashMap<>();
 
         resumen.put("abiertos", incidenciasDelDia.stream()
                 .filter(i -> i.getEstado() != null && "ABIERTO".equals(i.getEstado().getNombre()))
                 .count());
+
         resumen.put("enProceso", incidenciasDelDia.stream()
                 .filter(i -> i.getEstado() != null && "EN_PROCESO".equals(i.getEstado().getNombre()))
                 .count());
+
         resumen.put("cerrados", incidenciasDelDia.stream()
                 .filter(i -> i.getEstado() != null && "CERRADO".equals(i.getEstado().getNombre()))
                 .count());
+
         resumen.put("atrasados", incidenciasDelDia.stream()
-                .filter(i -> i.getEstado() != null &&
-                             ("ABIERTO".equals(i.getEstado().getNombre()) || "EN_PROCESO".equals(i.getEstado().getNombre())) &&
-                             i.getFechaRegistro().isBefore(fechaReporte.minusDays(2)))
+                .filter(i -> i.getEstado() != null
+                        && i.getFechaRegistro() != null
+                        && ("ABIERTO".equals(i.getEstado().getNombre()) || "EN_PROCESO".equals(i.getEstado().getNombre()))
+                        && i.getFechaRegistro().isBefore(LocalDateTime.now().minusDays(2)))
                 .count());
 
         return resumen;
     }
 
     public List<Incidencia> getDetalleIncidenciasDiarias(LocalDate fechaReporte) {
-        return incidenciaRepository.findByFechaRegistro(fechaReporte);
+        LocalDateTime inicio = fechaReporte.atStartOfDay();
+        LocalDateTime fin = fechaReporte.plusDays(1).atStartOfDay();
+        return incidenciaRepository.findByFechaRegistroBetween(inicio, fin);
     }
 
-    // --- Nuevos Métodos para Reporte de Tiempos de Atención ---
-
-    /**
-     * Calcula el tiempo promedio de atención para incidencias cerradas en un rango de días.
-     * @param numDias Número de días hacia atrás para el cálculo.
-     * @return Una lista de DTOs o un mapa de etiquetas y datos para el gráfico.
-     */
+    // ✅ Promedio por día usando fechaCierre LocalDateTime (por rango del día)
     public Map<String, List<?>> getTiempoPromedioAtencionPorDia(int numDias) {
         List<String> labels = new ArrayList<>();
         List<Double> data = new ArrayList<>();
 
         for (int i = numDias - 1; i >= 0; i--) {
             LocalDate fecha = LocalDate.now().minusDays(i);
-            labels.add(fecha.getDayOfWeek().name().substring(0, 3)); // Ej. MON, TUE
+            labels.add(fecha.getDayOfWeek().name().substring(0, 3));
 
-            List<Incidencia> incidenciasCerradasDelDia = incidenciaRepository.findByFechaCierre(fecha);
+            LocalDateTime inicio = fecha.atStartOfDay();
+            LocalDateTime fin = fecha.plusDays(1).atStartOfDay();
 
-            if (incidenciasCerradasDelDia.isEmpty()) {
+            List<Incidencia> cerradas = incidenciaRepository.findCerradasByFechaCierreBetween(inicio, fin);
+
+            if (cerradas.isEmpty()) {
                 data.add(0.0);
                 continue;
             }
@@ -277,17 +240,14 @@ public class SoporteService {
             double totalHoras = 0;
             long count = 0;
 
-            for (Incidencia incidencia : incidenciasCerradasDelDia) {
-                // Asegurarse de que tiene fecha de cierre y registro, y que el estado es CERRADO
-                if (incidencia.getFechaCierre() != null && incidencia.getFechaRegistro() != null &&
-                    incidencia.getEstado() != null && "CERRADO".equals(incidencia.getEstado().getNombre())) {
-                    
-                    // Cálculo simple en días, luego se puede mejorar para horas/minutos exactos
-                    long diffDays = ChronoUnit.DAYS.between(incidencia.getFechaRegistro(), incidencia.getFechaCierre());
-                    totalHoras += diffDays * 24; // Convertir a horas
+            for (Incidencia inc : cerradas) {
+                if (inc.getFechaCierre() != null && inc.getFechaRegistro() != null) {
+                    long diffHoras = ChronoUnit.HOURS.between(inc.getFechaRegistro(), inc.getFechaCierre());
+                    totalHoras += diffHoras;
                     count++;
                 }
             }
+
             data.add(count > 0 ? totalHoras / count : 0.0);
         }
 
@@ -297,26 +257,24 @@ public class SoporteService {
         return resultado;
     }
 
-    /**
-     * Calcula y compara el tiempo objetivo vs real por prioridad para incidencias cerradas.
-     * @return Un mapa con los tiempos objetivo y real para cada prioridad.
-     */
     public Map<String, Map<String, Double>> getComparacionTiempoObjetivoVsRealPorPrioridad() {
         Map<String, Map<String, Double>> comparacion = new HashMap<>();
         List<Prioridad> todasPrioridades = prioridadRepository.findAll();
 
         for (Prioridad prioridad : todasPrioridades) {
-            List<Incidencia> incidenciasPorPrioridad = incidenciaRepository.findIncidenciasCerradasByPrioridad(prioridad.getIdPrioridad());
+            List<Incidencia> incidenciasPorPrioridad =
+                    incidenciaRepository.findIncidenciasCerradasByPrioridad(prioridad.getIdPrioridad());
 
             double totalTiempoObjetivo = 0;
             double totalTiempoReal = 0;
             long count = 0;
 
-            for (Incidencia incidencia : incidenciasPorPrioridad) {
-                if (incidencia.getClasificacion() != null && incidencia.getFechaCierre() != null && incidencia.getFechaRegistro() != null) {
-                    totalTiempoObjetivo += incidencia.getClasificacion().getTiempoObjetivoHoras();
-                    long diffDays = ChronoUnit.DAYS.between(incidencia.getFechaRegistro(), incidencia.getFechaCierre());
-                    totalTiempoReal += diffDays * 24; // Convertir a horas
+            for (Incidencia inc : incidenciasPorPrioridad) {
+                if (inc.getClasificacion() != null && inc.getFechaCierre() != null && inc.getFechaRegistro() != null) {
+                    totalTiempoObjetivo += inc.getClasificacion().getTiempoObjetivoHoras();
+
+                    long diffHoras = ChronoUnit.HOURS.between(inc.getFechaRegistro(), inc.getFechaCierre());
+                    totalTiempoReal += diffHoras;
                     count++;
                 }
             }
@@ -326,6 +284,76 @@ public class SoporteService {
             tiempos.put("real", count > 0 ? totalTiempoReal / count : 0.0);
             comparacion.put(prioridad.getNombre(), tiempos);
         }
+
         return comparacion;
+    }
+    
+    @Transactional
+    public void reasignarTecnico(Integer idIncidencia, Integer nuevoTecnicoId, String observacionesJefe) {
+
+        Incidencia inc = incidenciaRepository.findById(idIncidencia)
+                .orElseThrow(() -> new RuntimeException("Incidencia no encontrada."));
+
+        if (inc.getAsignacion() == null) {
+            throw new RuntimeException("La incidencia no tiene asignación para reasignar.");
+        }
+
+        Usuario nuevoTecnico = usuarioRepository.findById(nuevoTecnicoId)
+                .orElseThrow(() -> new RuntimeException("Técnico no encontrado."));
+
+        // Cambiar el técnico en la asignación
+        Asignacion asig = inc.getAsignacion();
+        asig.setTecnico(nuevoTecnico);
+
+        // (Opcional) guardar observación del jefe en la orden de trabajo si existe
+        OrdenTrabajo ot = ordenTrabajoRepository
+                .findByAsignacion_IdAsignacion(asig.getIdAsignacion())
+                .orElse(null);
+
+        if (ot != null && observacionesJefe != null && !observacionesJefe.trim().isEmpty()) {
+            String obsActual = (ot.getObservaciones() == null) ? "" : ot.getObservaciones();
+            ot.setObservaciones((obsActual + "\n[Obs. Jefe Soporte] " + observacionesJefe).trim());
+            ordenTrabajoRepository.save(ot);
+        }
+
+        asignacionRepository.save(asig);
+    }
+
+    @Transactional
+    public void solicitarApoyo(Integer idIncidencia) {
+
+        Incidencia inc = incidenciaRepository.findById(idIncidencia)
+                .orElseThrow(() -> new RuntimeException("Incidencia no encontrada."));
+
+        // Cambia el estado (ajusta el nombre exacto al que tengas en tu tabla estado_incidencia)
+        EstadoIncidencia estado = estadoIncidenciaRepository.findByNombre("APOYO_SOLICITADO")
+                .orElseThrow(() -> new RuntimeException("Estado 'APOYO_SOLICITADO' no existe."));
+
+        inc.setEstado(estado);
+        incidenciaRepository.save(inc);
+    }
+
+    @Transactional
+    public void guardarObservacionesJefe(Integer idIncidencia, String observacionesJefe) {
+
+        if (observacionesJefe == null || observacionesJefe.trim().isEmpty()) {
+            return; // no guardar vacío
+        }
+
+        Incidencia inc = incidenciaRepository.findById(idIncidencia)
+                .orElseThrow(() -> new RuntimeException("Incidencia no encontrada."));
+
+        if (inc.getAsignacion() == null) {
+            throw new RuntimeException("La incidencia no tiene asignación (no hay orden de trabajo asociada).");
+        }
+
+        OrdenTrabajo ot = ordenTrabajoRepository
+                .findByAsignacion_IdAsignacion(inc.getAsignacion().getIdAsignacion())
+                .orElseThrow(() -> new RuntimeException("No existe orden de trabajo para esta asignación."));
+
+        String obsActual = (ot.getObservaciones() == null) ? "" : ot.getObservaciones();
+        ot.setObservaciones((obsActual + "\n[Obs. Jefe Soporte] " + observacionesJefe).trim());
+
+        ordenTrabajoRepository.save(ot);
     }
 }

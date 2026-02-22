@@ -179,18 +179,18 @@
         </div>
         <div class="info-box">
             <span>Fecha Registro</span>
-            <span th:text="${#temporals.format(ticket.fechaRegistro, 'dd/MM/yyyy')}">06/02/2026</span>
+            <span th:text="${#temporals.format(ticket.fechaRegistro, 'dd/MM/yyyy HH:mm')}">06/02/2026 10:30</span>
         </div>
         <div class="info-box">
             <span>Estado</span>
-            <span class="status" 
-                  th:classappend="${ticket.estado.nombre == 'ABIERTO' ? 'abierto' : 
-                                   (ticket.estado.nombre == 'EN_PROCESO' ? 'proceso' : 
-                                   (ticket.fechaRegistro.isBefore(T(java.time.LocalDate).now().minusDays(2)) ? 'atrasado' : 
+            <span class="status"
+                  th:classappend="${ticket.estado.nombre == 'ABIERTO' ? 'abierto' :
+                                   (ticket.estado.nombre == 'EN_PROCESO' ? 'proceso' :
+                                   (ticket.fechaRegistro.toLocalDate().isBefore(T(java.time.LocalDate).now().minusDays(2)) ? 'atrasado' :
                                    'cerrado'))}"
-                  th:text="${ticket.estado.nombre == 'ABIERTO' ? 'ABIERTO' : 
-                            (ticket.estado.nombre == 'EN_PROCESO' ? 'EN PROCESO' : 
-                            (ticket.fechaRegistro.isBefore(T(java.time.LocalDate).now().minusDays(2)) ? 'ATRASADO' : 
+                  th:text="${ticket.estado.nombre == 'ABIERTO' ? 'ABIERTO' :
+                            (ticket.estado.nombre == 'EN_PROCESO' ? 'EN PROCESO' :
+                            (ticket.fechaRegistro.toLocalDate().isBefore(T(java.time.LocalDate).now().minusDays(2)) ? 'ATRASADO' :
                             'CERRADO'))}">
                 ATRASADO
             </span>
@@ -207,7 +207,7 @@
         </div>
         <div class="info-box">
             <span>Técnico Asignado</span>
-            <span th:if="${ticket.asignacion != null and ticket.asignacion.activa}" 
+            <span th:if="${ticket.asignacion != null and ticket.asignacion.activa}"
                   th:text="${ticket.asignacion.tecnico.nombres + ' ' + ticket.asignacion.tecnico.apellidos}">
                 María Torres
             </span>
@@ -228,7 +228,7 @@
 
     <h3>Avances del Técnico</h3>
     <div class="block tech" th:if="${ticket.historial != null and !ticket.historial.empty}">
-        <div th:each="evento : ${ticket.historial}" 
+        <div th:each="evento : ${ticket.historial}"
              th:if="${evento.tipoEvento == 'AVANCE' or evento.tipoEvento == 'CAMBIO_ESTADO'}"
              th:text="${evento.detalle}">
             Se revisó la configuración de red...
@@ -240,14 +240,25 @@
 
     <h3>Solución Aplicada</h3>
     <div class="block solution" th:if="${ticket.estado.nombre == 'CERRADO'}">
-        <!-- Aquí puedes mostrar la solución de la orden de trabajo o del último avance -->
-        <span th:if="${ticket.ordenTrabajo != null}" th:text="${ticket.ordenTrabajo.actividades}">
-            Se corrigió la configuración IP...
-        </span>
-        <span th:if="${ticket.ordenTrabajo == null}">
-            El ticket ha sido cerrado. Para más detalles, contacte con soporte.
-        </span>
+
+        <!-- Usa la variable del modelo: ordenTrabajo -->
+        <div th:if="${ordenTrabajo != null}">
+            <strong>Actividades:</strong><br>
+            <span th:text="${ordenTrabajo.actividades}">Se corrigió la configuración IP...</span><br><br>
+
+            <strong>Herramientas:</strong><br>
+            <span th:text="${ordenTrabajo.herramientas}">Drivers / utilidades...</span><br><br>
+
+            <strong>Observaciones:</strong><br>
+            <span th:text="${ordenTrabajo.observaciones}">Validación final...</span>
+        </div>
+
+        <div th:if="${ordenTrabajo == null}" class="empty-message">
+            El ticket ha sido cerrado, pero el técnico no registró una orden de trabajo.
+        </div>
+
     </div>
+
     <div class="block solution empty-message" th:if="${ticket.estado.nombre != 'CERRADO'}">
         El ticket aún no ha sido cerrado.
     </div>
@@ -258,6 +269,42 @@
             Registrar Conformidad
         </a>
     </div>
+
+    <h3>Historial de Atención</h3>
+
+    <div class="block" style="border-left-color:#0ea5e9; background:#e0f2fe; color:#0c4a6e;">
+        <strong>🧾 Registro del Ticket</strong><br>
+        <span th:text="${#temporals.format(ticket.fechaRegistro, 'dd/MM/yyyy HH:mm')}">--/--/----</span>
+    </div>
+
+    <div class="block" style="border-left-color:#f59e0b; background:#fff7ed; color:#7c2d12;"
+         th:if="${ticket.asignacion != null}">
+        <strong>👨‍🔧 Asignado a Técnico</strong><br>
+        <span th:text="${ticket.asignacion.tecnico.nombres + ' ' + ticket.asignacion.tecnico.apellidos}">Técnico</span><br>
+        <span th:text="${#temporals.format(ticket.asignacion.fechaAsignacion, 'dd/MM/yyyy HH:mm')}">--/--/----</span>
+        <div style="margin-top:8px;">
+            <span style="font-weight:bold;">Estado:</span> EN PROCESO (inicio de atención)
+        </div>
+    </div>
+
+    <div class="block" style="border-left-color:#7c3aed; background:#f3e8ff; color:#4c1d95;"
+         th:if="${ticket.estado != null and ticket.estado.nombre == 'PENDIENTE_CONFORMIDAD_CLIENTE'}">
+        <strong>📩 Solicitud de Conformidad</strong><br>
+        El técnico solicitó el cierre al cliente.<br>
+        <span style="font-style:italic;">Fecha/Hora: N/D (no registrada en el modelo)</span>
+    </div>
+
+    <div class="block" style="border-left-color:#16a34a; background:#ecfdf5; color:#065f46;"
+         th:if="${ticket.fechaCierre != null}">
+        <strong>✅ Confirmación del Cliente / Cierre</strong><br>
+        <span th:text="${#temporals.format(ticket.fechaCierre, 'dd/MM/yyyy HH:mm')}">--/--/----</span>
+    </div>
+
+    <div class="block empty-message"
+         th:if="${ticket.asignacion == null and ticket.fechaCierre == null}">
+        Aún no hay eventos adicionales. El ticket solo está registrado.
+    </div>
+
 </div>
 
 <footer>

@@ -1,6 +1,7 @@
 package com.TechSolutions.Soporte.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -31,6 +32,6 @@ public class OrdenTrabajo {
     @Column(name = "recomendaciones", columnDefinition = "TEXT")
     private String recomendaciones;
 
-    private LocalDate fechaInicio;
-    private LocalDate fechaFin;
+    private LocalDateTime fechaInicio;
+    private LocalDateTime fechaFin;
 }

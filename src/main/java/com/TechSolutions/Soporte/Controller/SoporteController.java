@@ -40,6 +40,7 @@ public class SoporteController {
         }
 
         List<Incidencia> todasLasIncidencias = soporteService.findAllIncidencias();
+        model.addAttribute("todasLasIncidencias", todasLasIncidencias);
 
         Map<String, Long> kpis = soporteService.calcularKpis(todasLasIncidencias);
         model.addAttribute("kpis", kpis);
@@ -55,9 +56,15 @@ public class SoporteController {
     }
 
     @GetMapping("/ticket/{id}")
-    public String verTicket(@PathVariable Integer id, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+    public String verTicket(@PathVariable Integer id,
+                            HttpSession session,
+                            Model model,
+                            RedirectAttributes redirectAttributes) {
+
         String rol = (String) session.getAttribute("rol");
-        if (!"JEFE_SOPORTE".equals(rol)) {
+        Usuario jefeSoporte = (Usuario) session.getAttribute("usuario");
+
+        if (jefeSoporte == null || !"JEFE_SOPORTE".equals(rol)) {
             return "redirect:/login";
         }
 
@@ -67,7 +74,18 @@ public class SoporteController {
             return "redirect:/soporte/home";
         }
 
+        // Traer orden de trabajo si existe (para mostrar solución)
+        OrdenTrabajo ordenTrabajo = null;
+        if (ticket.getAsignacion() != null) {
+            ordenTrabajo = tecnicoService.obtenerOrdenTrabajoPorAsignacionId(
+                    ticket.getAsignacion().getIdAsignacion()
+            );
+        }
+
         model.addAttribute("ticket", ticket);
+        model.addAttribute("ordenTrabajo", ordenTrabajo);
+        model.addAttribute("jefeSoporte", jefeSoporte);
+
         return "soporte/ticket-detalle";
     }
 

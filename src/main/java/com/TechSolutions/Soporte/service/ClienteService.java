@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class ClienteService {
             EstadoIncidencia estadoCerrado = estadoIncidenciaRepository.findByNombre("CERRADO")
                     .orElseThrow(() -> new RuntimeException("Estado 'CERRADO' no encontrado."));
             incidencia.setEstado(estadoCerrado);
-            incidencia.setFechaCierre(LocalDate.now());
+            incidencia.setFechaCierre(LocalDateTime.now());
             System.out.println("Comentario del cliente: " + comentarioCliente);
 
         } else if ("noConforme".equals(accion)) {
