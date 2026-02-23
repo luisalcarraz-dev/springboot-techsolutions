@@ -3,245 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Acta de Conformidad | Cliente</title>
-    <!-- Aquí puedes incluir tus CSS si los tienes -->
-	<style>
-	        /* ------------------------------------- */
-	        /*           Base & Reset                */
-	        /* ------------------------------------- */
-	        * {
-	            box-sizing: border-box;
-	            font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif; /* Fuente más moderna */
-	        }
 
-	        body {
-	            margin: 0;
-	            background-color: #f1f5f9; /* Fondo gris claro */
-	            color: #374151; /* Color de texto base */
-	            line-height: 1.6;
-	        }
-
-	        /* ------------------------------------- */
-	        /*           Layout General              */
-	        /* ------------------------------------- */
-	        .container {
-	            max-width: 1000px; /* Ancho ajustado para esta vista */
-	            margin: 30px auto;
-	            background-color: #ffffff; /* Fondo blanco para el contenido principal */
-	            padding: 30px; /* Más padding */
-	            border-radius: 10px; /* Bordes más suaves */
-	            box-shadow: 0 8px 20px rgba(0,0,0,0.1); /* Sombra más pronunciada pero suave */
-	        }
-
-	        /* ------------------------------------- */
-	        /*           Cabecera y Pie de Página    */
-	        /* ------------------------------------- */
-	        header {
-	            background-color: #020617; /* Azul oscuro casi negro */
-	            color: #ffffff;
-	            padding: 18px 30px; /* Ajustado para consistencia */
-	            font-size: 22px; /* Un poco más grande */
-	            font-weight: 600; /* Más peso */
-	            display: flex; /* Para alinear el contenido de la cabecera */
-	            justify-content: space-between; /* Espacio entre título y usuario/logout */
-	            align-items: center;
-	        }
-
-	        header .logout {
-	            color: #ffcc00; /* Amarillo/naranja para el enlace de cerrar sesión */
-	            text-decoration: none;
-	            font-size: 16px;
-	            font-weight: normal;
-	            margin-left: 20px;
-	        }
-
-	        header .logout:hover {
-	            text-decoration: underline;
-	            color: #ffd700; /* Un poco más brillante al pasar el ratón */
-	        }
-
-	        footer {
-	            margin-top: 40px; /* Más espacio en el pie de página */
-	            text-align: center;
-	            font-size: 14px;
-	            color: #6b7280; /* Gris sutil */
-	            padding: 15px 0; /* Padding para el pie de página */
-	        }
-
-	        /* ------------------------------------- */
-	        /*           Títulos y Encabezados       */
-	        /* ------------------------------------- */
-	        h2 {
-	            margin-top: 0;
-	            color: #020617;
-	            border-bottom: 2px solid #e5e7eb; /* Separador sutil */
-	            padding-bottom: 12px; /* Más espacio debajo */
-	            font-size: 24px;
-	            font-weight: 600;
-	            margin-bottom: 30px;
-	        }
-
-	        h3 {
-	            margin-top: 35px; /* Más espacio arriba */
-	            margin-bottom: 20px; /* Espacio debajo */
-	            color: #1e293b; /* Un gris oscuro */
-	            font-size: 20px;
-	            font-weight: 500;
-	        }
-
-	        /* ------------------------------------- */
-	        /*           Info Grid (Datos Generales) */
-	        /* ------------------------------------- */
-	        .info-grid {
-	            display: grid;
-	            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Más flexible */
-	            gap: 20px; /* Más separación */
-	            margin-bottom: 30px;
-	        }
-
-	        .info-box {
-	            background-color: #f8fafc; /* Fondo muy claro */
-	            padding: 15px 20px; /* Más padding */
-	            border-left: 6px solid #2563eb; /* Borde azul vibrante */
-	            border-radius: 8px; /* Bordes más redondeados */
-	            font-size: 15px;
-	            display: flex; /* Para alinear el label y el valor */
-	            flex-direction: column; /* Apilar label y valor */
-	            justify-content: center;
-	            min-height: 70px; /* Altura mínima para uniformidad */
-	        }
-
-	        .info-box span:first-child { /* Estilo para el label (primer span) */
-	            display: block;
-	            font-weight: bold;
-	            color: #4b5563; /* Gris más oscuro para el label */
-	            font-size: 13px;
-	            margin-bottom: 4px;
-	            text-transform: uppercase; /* Mayúsculas para el label */
-	        }
-
-	        .info-box span:last-child { /* Estilo para el valor (segundo span) */
-	            color: #1e293b;
-	            font-weight: 500;
-	        }
-
-	        /* ------------------------------------- */
-	        /*           Estados                     */
-	        /* ------------------------------------- */
-	        /* Estos estilos son para el SPAN que muestra el estado en el info-box */
-	        .info-box .status {
-	            display: inline-block;
-	            padding: 4px 10px;
-	            border-radius: 12px; /* Pastilla más pequeña */
-	            font-size: 12px;
-	            font-weight: bold;
-	            color: white;
-	            text-transform: uppercase;
-	            letter-spacing: 0.5px;
-	            background-color: #f97316; /* Naranja por defecto para PENDIENTE_CONFORMIDAD */
-	        }
-	        /* Si quieres estilos específicos para otros estados, puedes añadirlos */
-	        .info-box .status.ABIERTO { background-color: #007bff; }
-	        .info-box .status.EN_PROCESO { background-color: #ffc107; color: #333; }
-	        .info-box .status.CERRADO { background-color: #28a745; }
-
-
-	        /* ------------------------------------- */
-	        /*           Bloques de Descripción      */
-	        /* ------------------------------------- */
-	        .block {
-	            background-color: #f8f9fa; /* Fondo muy claro */
-	            border-left: 6px solid #adb5bd; /* Borde gris */
-	            padding: 18px; /* Más padding */
-	            border-radius: 8px; /* Bordes redondeados */
-	            font-size: 15px;
-	            color: #343a40; /* Texto oscuro */
-	            margin-bottom: 30px;
-	            white-space: pre-wrap; /* Para mantener saltos de línea y espacios en texto preformateado */
-	        }
-
-	        .block strong {
-	            display: block;
-	            margin-bottom: 10px;
-	            color: #212529; /* Más oscuro para los títulos */
-	            font-size: 16px;
-	        }
-
-	        /* ------------------------------------- */
-	        /*           Formulario Conformidad      */
-	        /* ------------------------------------- */
-	        textarea {
-	            width: 100%;
-	            padding: 12px; /* Más padding */
-	            border: 1px solid #cbd5e1; /* Borde más suave */
-	            border-radius: 8px; /* Bordes más redondeados */
-	            font-size: 15px;
-	            color: #1e293b;
-	            min-height: 120px; /* Altura mínima */
-	            resize: vertical;
-	            margin-bottom: 25px; /* Espacio antes de confirm-box */
-	            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-	        }
-
-	        textarea:focus {
-	            border-color: #2563eb; /* Borde azul al enfocar */
-	            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); /* Sombra suave al enfocar */
-	            outline: none;
-	        }
-
-	        .confirm-box {
-	            background-color: #e0f2fe; /* Azul claro */
-	            border-left: 6px solid #0ea5e9; /* Azul */
-	            padding: 18px;
-	            border-radius: 8px;
-	            font-size: 15px;
-	            color: #0c4a6e;
-	            margin-bottom: 30px;
-	        }
-	        .confirm-box strong {
-	            color: #0c4a6e;
-	            font-size: 16px;
-	        }
-
-	        .actions {
-	            margin-top: 40px; /* Más espacio arriba de los botones */
-	            text-align: right; /* Alinear a la derecha */
-	            display: flex; /* Para alinear botones */
-	            justify-content: flex-end; /* Alinear a la derecha */
-	            gap: 10px; /* Espacio entre botones */
-	        }
-
-	        .btn {
-	            border: none;
-	            padding: 12px 25px; /* Más padding en botones */
-	            font-size: 15px; /* Fuente un poco más grande */
-	            font-weight: 600;
-	            border-radius: 8px; /* Bordes más redondeados */
-	            cursor: pointer;
-	            transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-	            text-decoration: none; /* Para los 'a' que actúan como botones */
-	            display: inline-flex; /* Para centrar texto si es necesario */
-	            align-items: center;
-	            justify-content: center;
-	        }
-
-	        .btn-reject { /* Para "Volver" y "No Conforme" */
-	            background-color: #6c757d; /* Gris oscuro */
-	            color: white;
-	        }
-	        .btn-reject:hover {
-	            background-color: #5a6268;
-	            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.2);
-	        }
-
-	        .btn-confirm { /* Para "Confirmar Conformidad" */
-	            background-color: #28a745; /* Verde */
-	            color: white;
-	        }
-	        .btn-confirm:hover {
-	            background-color: #218838;
-	            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
-	        }
-	    </style>
 </head>
 
 <body>
@@ -250,7 +12,7 @@
     Acta de Conformidad de Atención
 </header>
 
-<div class="container">
+<div >
     <h2>Datos del Ticket</h2>
 
     <div class="info-grid">
@@ -268,7 +30,7 @@
         </div>
     </div>
 
-    <div class="info-grid">
+    <div >
         <div class="info-box">
             <span>Cliente</span>
             <span th:text="${ticket.cliente.nombres + ' ' + ticket.cliente.apellidos}">Ana Torres</span>
@@ -304,7 +66,7 @@
     </div>
 
 
-    <form th:action="@{/cliente/conformidad/{id}(id=${ticket.idIncidencia})}" method="post">
+    <form th:action="@{/cliente/ticket/{idIncidencia}/conformidad(idIncidencia=${ticket.idIncidencia})}" method="post">
         <h3>Comentario del Cliente (opcional)</h3>
         <textarea name="comentario" placeholder="Puede dejar un comentario sobre la atención recibida..."></textarea>
 
