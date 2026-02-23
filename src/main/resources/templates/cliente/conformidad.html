@@ -273,14 +273,14 @@
             <span>Cliente</span>
             <span th:text="${ticket.cliente.nombres + ' ' + ticket.cliente.apellidos}">Ana Torres</span>
         </div>
-        <!-- Asumo que 'Area' no está directamente en Incidencia, si lo está, ajusta -->
+ 
         <div class="info-box">
             <span>Área</span>
-            <span>N/A</span> <!-- Placeholder, ajustar si tienes el dato -->
+            <span>N/A</span>
         </div>
         <div class="info-box">
             <span>Técnico</span>
-            <!-- Asumo que el técnico está en la Asignacion, si existe -->
+
             <span th:if="${ticket.asignacion != null}" th:text="${ticket.asignacion.tecnico.nombres + ' ' + ticket.asignacion.tecnico.apellidos}">María Torres</span>
             <span th:unless="${ticket.asignacion != null}">No asignado</span>
         </div>
@@ -294,7 +294,7 @@
 
     <h3>Solución Aplicada</h3>
     <div class="block">
-        <!-- Asumo que la solución está en OrdenTrabajo, si existe -->
+    
         <span th:if="${ticket.asignacion != null and ticket.asignacion.ordenTrabajo != null}" th:text="${ticket.asignacion.ordenTrabajo.actividades}">
             Se corrigió la configuración de red, se reinstalaron los
             controladores de la impresora y se validó la impresión
@@ -303,7 +303,7 @@
         <span th:unless="${ticket.asignacion != null and ticket.asignacion.ordenTrabajo != null}">Solución no registrada aún.</span>
     </div>
 
-    <!-- Formulario para la conformidad -->
+
     <form th:action="@{/cliente/conformidad/{id}(id=${ticket.idIncidencia})}" method="post">
         <h3>Comentario del Cliente (opcional)</h3>
         <textarea name="comentario" placeholder="Puede dejar un comentario sobre la atención recibida..."></textarea>
@@ -317,9 +317,9 @@
 
         <div class="actions">
             <a th:href="@{/cliente/home}" class="btn btn-reject">Volver</a>
-            <!-- Botón "No Conforme" -->
+
             <button type="submit" name="conforme" value="false" class="btn btn-reject">No Conforme</button>
-            <!-- Botón "Confirmar Conformidad" -->
+
             <button type="submit" name="conforme" value="true" class="btn btn-confirm">Confirmar Conformidad</button>
         </div>
     </form>

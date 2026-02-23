@@ -197,7 +197,7 @@
         </div>
     </div>
 
-    <!-- Fila 2: Prioridad, Técnico, Área -->
+ 
     <div class="info-grid">
         <div class="info-box">
             <span>Prioridad</span>
@@ -241,7 +241,7 @@
     <h3>Solución Aplicada</h3>
     <div class="block solution" th:if="${ticket.estado.nombre == 'CERRADO'}">
 
-        <!-- Usa la variable del modelo: ordenTrabajo -->
+
         <div th:if="${ordenTrabajo != null}">
             <strong>Actividades:</strong><br>
             <span th:text="${ordenTrabajo.actividades}">Se corrigió la configuración IP...</span><br><br>
@@ -263,7 +263,7 @@
         El ticket aún no ha sido cerrado.
     </div>
 
-    <!-- Botón de conformidad si está cerrado -->
+ 
     <div class="actions" th:if="${ticket.estado.nombre == 'CERRADO'}">
         <a th:href="@{/cliente/conformidad/{id}(id=${ticket.idIncidencia})}" class="btn btn-ok">
             Registrar Conformidad

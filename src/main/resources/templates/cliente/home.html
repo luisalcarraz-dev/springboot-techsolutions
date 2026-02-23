@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard Cliente | TechSolutions</title>
-    <!-- Tus estilos CSS irían aquí -->
+
 	<style>
 	    * {
 	        box-sizing: border-box;
@@ -206,19 +206,16 @@
             <h3>En Proceso</h3>
             <p th:text="${estadisticas['enProceso']}">0</p>
         </div>
-        <!-- NUEVO CARD PARA PENDIENTES DE CONFORMIDAD -->
+
         <div class="card pending-conformity">
             <h3>Pendientes Conformidad</h3>
             <p th:text="${estadisticas['pendientesConformidad']}">0</p>
         </div>
-        <!-- El cálculo de atrasados en el KPI debe hacerse en el servicio si se quiere un KPI dedicado -->
-        <!-- Por ahora, si no tienes un 'atrasados' en el mapa, esto daría error -->
-        <!-- Asumiendo que quisieras mostrar un total si no hay atrasados específicos calculados -->
+
         <div class="card late">
             <h3>Atrasados</h3>
             <p th:text="${estadisticas['atrasados'] != null ? estadisticas['atrasados'] : '0'}">0</p>
-            <!-- Si no tienes atrasados específicos en el mapa 'estadisticas', podrías mostrar 0 o quitar este KPI -->
-            <!-- Si sí lo calculas en el servicio, solo usa th:text="${estadisticas['atrasados']}" -->
+
         </div>
         <div class="card closed">
             <h3>Cerrados</h3>
@@ -226,7 +223,7 @@
         </div>
     </div>
 
-    <!-- Tabla de incidencias -->
+
     <div class="table-container">
         <div class="table-header">
             <h2>Mis Incidencias</h2>
