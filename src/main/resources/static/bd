@@ -1,46 +1,93 @@
-Create database tech_solutions;
-USE tech_solutions;
+CREATE DATABASE tech_solutions;
 
--- 1) ROLES (no falla si ya existen)
-INSERT INTO rol(nombre) VALUES ('JEFE_SOPORTE')
-ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
-
-INSERT INTO rol(nombre) VALUES ('TECNICO')
-ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
-
--- (Opcional) ver roles
-SELECT * FROM rol;
+/* =========================================================
+   1) ROL JEFE_SOPORTE (no falla si ya existe)
+   ========================================================= */
+INSERT INTO rol (nombre) VALUES
+('ADMIN'),
+('TECNICO'),
+('CLIENTE');
 
 
--- 2) USUARIO JEFE (no falla si ya existe username/correo/dni)
+
+INSERT INTO usuario
+(apellidos, correo, dni, nombres, password_hash, username, id_rol)
+VALUES
+('Jimenez', 'admin@techsolutions.com', '12345678', 'Jorge', 
+'$2a$10$4Twm7RuW0AlTV4Gp1Ycu5ePs1Mb6alG2gtnUw4tNxG8rIIMkdZhEC', 
+'admin', 1);
+
+select *from usuario;
+
+INSERT INTO usuario
+(apellidos, correo, dni, nombres, password_hash, username, id_rol)
+VALUES
+('Perez', 'soporte@techsolutions.com', '87654321', 'Juan', 
+'$2a$10$xRLXZocQYapY1wI9H/EyN.CxOQnSSf68alymeCOMWmV7KIDPBE58i', 
+'soporte', 2);
+
+
+select * from usuario;
+INSERT INTO usuario
+(apellidos, correo, dni, nombres, password_hash, username, id_rol)
+VALUES
+('Gomez', 'usuario@techsolutions.com', '11223344', 'Maria', 
+'$2a$10$bYyZ4YaAZF79NO3o3DYpeuwZkm3dq0G8o95J0a9OPsh.8v4hMu/um', 
+'cliente', 3);
+
+
+
+INSERT INTO canal_contacto (id_canal, nombre) VALUES
+
+(1,'WEB'),
+
+(2,'TELEFONO'),
+
+(3,'WHATSAPP'),
+
+(4,'CORREO'),
+
+(5,'VERBAL');
+
+
+
+
+INSERT INTO estado_incidencia (id_estado, nombre) VALUES
+
+(1,'ABIERTO'),
+
+(2,'EN_PROCESO'),
+
+(3,'CERRADO');
+
+
+
+
+INSERT INTO rol (nombre) VALUES ('JEFE_SOPORTE');
+
+
+
+
 INSERT INTO usuario (apellidos, correo, dni, nombres, password_hash, username, id_rol)
-VALUES (
-  'Lopez',
-  'jefe@techsolutions.com',
-  '44556677',
-  'Carlos',
-  '$2a$10$Qfqp08KZBmrynA3DeqxR0eyYWJHOZJESuY2HcU45okYa.ufrIzwrC',
-  'jefe',
-  (SELECT id_rol FROM rol WHERE nombre='JEFE_SOPORTE')
-)
-ON DUPLICATE KEY UPDATE
-  apellidos      = VALUES(apellidos),
-  correo         = VALUES(correo),
-  dni            = VALUES(dni),
-  nombres        = VALUES(nombres),
-  password_hash  = VALUES(password_hash),
-  id_rol         = VALUES(id_rol);
 
+VALUES
 
--- 3) TIPOS DE INCIDENCIA (solo si tu tabla tiene UNIQUE(nombre))
-INSERT INTO tipo_incidencia (nombre) VALUES
-('Fallo de Hardware'),
-('Problema de Software'),
-('Consulta Técnica'),
-('Problema de Red'),
-('Requerimiento de Servicio')
+('Lopez', 'jefe@techsolutions.com', '44556677', 'Carlos',
+
+'$2a$10$Qfqp08KZBmrynA3DeqxR0eyYWJHOZJESuY2HcU45okYa.ufrIzwrC',
+
+'jefe',
+
+(SELECT id_rol FROM rol WHERE nombre='JEFE_SOPORTE'));
+
+/* =========================================================
+   6) ESTADO_INCIDENCIA
+   ========================================================= */
+ALTER TABLE estado_incidencia MODIFY COLUMN nombre VARCHAR(50);
+
+INSERT INTO estado_incidencia (nombre)
+VALUES ('PENDIENTE_CONFORMIDAD_CLIENTE')
 ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
-
 
 -- 4) PRIORIDADES (solo si tu tabla tiene UNIQUE(nombre))
 INSERT INTO prioridad (nombre, orden_prioridad) VALUES
@@ -51,129 +98,52 @@ INSERT INTO prioridad (nombre, orden_prioridad) VALUES
 ON DUPLICATE KEY UPDATE
   nombre = VALUES(nombre),
   orden_prioridad = VALUES(orden_prioridad);
-
-
--- 5) TECNICOS (IMPORTANTE: DNI es CHAR(8) normalmente; usa 8 dígitos)
-INSERT INTO usuario (apellidos, correo, dni, nombres, password_hash, username, id_rol)
-VALUES (
-  'García',
-  'ana.garcia@techsolutions.com',
-  '12345678',
-  'Ana',
-  '$2a$10$oJtzNRaRrI2DIRc7L2eAJOjo2bNztMr.hqs22XqbNw3rV97IhTEey',
-  'tecnico3',
-  (SELECT id_rol FROM rol WHERE nombre='TECNICO')
-)
-ON DUPLICATE KEY UPDATE
-  apellidos      = VALUES(apellidos),
-  correo         = VALUES(correo),
-  dni            = VALUES(dni),
-  nombres        = VALUES(nombres),
-  password_hash  = VALUES(password_hash),
-  id_rol         = VALUES(id_rol);
-
-INSERT INTO usuario (apellidos, correo, dni, nombres, password_hash, username, id_rol)
-VALUES (
-  'Fernández',
-  'roberto.fernandez@techsolutions.com',
-  '87654321',
-  'Roberto',
-  '$2a$10$pLqOCW0ymqps/ViBB467Ou72vIR8gFIfF/R0YwawlbE0.Cvi3c.GG',
-  'tecnico4',
-  (SELECT id_rol FROM rol WHERE nombre='TECNICO')
-)
-ON DUPLICATE KEY UPDATE
-  apellidos      = VALUES(apellidos),
-  correo         = VALUES(correo),
-  dni            = VALUES(dni),
-  nombres        = VALUES(nombres),
-  password_hash  = VALUES(password_hash),
-  id_rol         = VALUES(id_rol);
-
-
--- 6) ESTADO_INCIDENCIA (si existe esa tabla y quieres el estado)
-ALTER TABLE estado_incidencia MODIFY COLUMN nombre VARCHAR(50);
-
-INSERT INTO estado_incidencia (nombre)
-VALUES ('PENDIENTE_CONFORMIDAD_CLIENTE')
-ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
-
-
--- 7) CLIENTES (cliente1, cliente2, cliente3)  password: Maria1234
-INSERT INTO rol(nombre) VALUES ('CLIENTE')
-ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
-
-INSERT INTO usuario (apellidos, correo, dni, nombres, password_hash, username, id_rol)
-VALUES
-('Quispe',  'cliente1@techsolutions.com', '70000001', 'Maria',
- '$2a$10$orArvLNXbHz9CX2tbL3Ode6ZusliAdR/dAEOi0m3iiKugLzKjpasq',
- 'cliente1',
- (SELECT id_rol FROM rol WHERE nombre='CLIENTE')),
-
-('Rojas',   'cliente2@techsolutions.com', '70000002', 'Maria',
- '$2a$10$orArvLNXbHz9CX2tbL3Ode6ZusliAdR/dAEOi0m3iiKugLzKjpasq',
- 'cliente2',
- (SELECT id_rol FROM rol WHERE nombre='CLIENTE')),
-
-('Flores',  'cliente3@techsolutions.com', '70000003', 'Maria',
- '$2a$10$orArvLNXbHz9CX2tbL3Ode6ZusliAdR/dAEOi0m3iiKugLzKjpasq',
- 'cliente3',
- (SELECT id_rol FROM rol WHERE nombre='CLIENTE'))
-ON DUPLICATE KEY UPDATE
-  apellidos      = VALUES(apellidos),
-  correo         = VALUES(correo),
-  dni            = VALUES(dni),
-  nombres        = VALUES(nombres),
-  password_hash  = VALUES(password_hash),
-  id_rol         = VALUES(id_rol);
   
-
--- 1) Asegurar que el ID=1 sea ABIERTO
-UPDATE estado_incidencia
-SET nombre = 'ABIERTO'
-WHERE id_estado = 1;
-
--- 2) Insertar los demás estados que tu sistema usa
-INSERT INTO estado_incidencia (nombre) VALUES
-('EN_PROCESO'),
-('PENDIENTE_CONFORMIDAD_CLIENTE'),
-('CERRADO')
+  -- 3) TIPOS DE INCIDENCIA (solo si tu tabla tiene UNIQUE(nombre))
+INSERT INTO tipo_incidencia (nombre) VALUES
+('Fallo de Hardware'),
+('Problema de Software'),
+('Consulta Técnica'),
+('Problema de Red'),
+('Requerimiento de Servicio')
 ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
 
--- 3) Crear el canal WEB con ID=1 (obligatorio por tu service)
-INSERT INTO canal_contacto (id_canal, nombre)
-VALUES (1, 'WEB')
-ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
+INSERT INTO usuario
+(apellidos, correo, dni, nombres, password_hash, username, id_rol)
+VALUES
+('Serna', '2soporte@techsolutions.com', '99999999', 'Alvaro', 
+'$2a$10$XePXKR73ZTBMio5wZ.H2c.7oxZvoLnnHcxJd3sFD6p7pGNkHNtbS6', 
+'soporte2', 2);
 
-SELECT * FROM estado_incidencia ORDER BY id_estado;
-SELECT * FROM canal_contacto ORDER BY id_canal;
 
--- JEFE SOPORTE
+INSERT INTO usuario
+(apellidos, correo, dni, nombres, password_hash, username, id_rol)
+VALUES
+('Roca', '3soporte@techsolutions.com', '88888888', 'Rodrigo', 
+'$2a$10$vkDGuJWzOX387Jx05G1N7.dTZeUKcpQkfzHijq4lL31MDBY5Zob.q', 
+'soporte3', 2);
 
--- Usuario: jefe
 
--- Contraseña: jefe1234
 
--- TÉCNICOS
+UPDATE usuario
+SET password_hash = '$2a$10$fEoANKuMOcOa8h1vj6gVLOTGYqWREfcWesuZ6nZmAqZPr8Pfu45OW'
+WHERE id_usuario = 3;
 
--- Usuario: tecnico3
 
--- Contraseña: tecnico3
+INSERT INTO usuario
+(apellidos, correo, dni, nombres, password_hash, username, id_rol)
+VALUES
+('Neyra', '2usuario@techsolutions.com', '77777777', 'Kevin', 
+'$2a$10$j2.foSPQdmP2Q4Z3rLOGrehRtXF2zONabtyhWlMpb2Z/XIVdFOI2K', 
+'cliente2', 3);
 
--- Usuario: tecnico4
+INSERT INTO usuario
+(apellidos, correo, dni, nombres, password_hash, username, id_rol)
+VALUES
+('Perez', '3usuario@techsolutions.com', '66666666', 'Angel', 
+'$2a$10$vlM.L4x.9.U9mVI0cwcT7ekJ0lmDvVJSA27BefqurjR/mPmc8QBZi', 
+'cliente3', 3);
 
--- Contraseña: tecnico4
 
--- CLIENTES (usuarios)
 
--- Usuario: cliente1
 
--- Contraseña: Maria1234
-
--- Usuario: cliente2
-
--- Contraseña: Maria1234
-
--- Usuario: cliente3
-
--- Contraseña: Maria1234
