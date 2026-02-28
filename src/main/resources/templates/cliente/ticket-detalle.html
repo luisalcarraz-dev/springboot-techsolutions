@@ -264,11 +264,7 @@
     </div>
 
  
-    <div class="actions" th:if="${ticket.estado.nombre == 'CERRADO'}">
-        <a th:href="@{/cliente/conformidad/{id}(id=${ticket.idIncidencia})}" class="btn btn-ok">
-            Registrar Conformidad
-        </a>
-    </div>
+
 
     <h3>Historial de Atención</h3>
 

@@ -14,7 +14,17 @@
             font-size: 20px;
             font-weight: bold;
         }
+		
+		header .logout {
+		    color: #ffcc00;
+		    text-decoration: none;
+		    margin-left: 15px;
+		}
 
+		header .logout:hover {
+		    text-decoration: underline;
+		}
+		
         .container { max-width: 1300px; margin: 30px auto; padding: 20px; }
         h2 { color: #020617; margin-bottom: 15px; }
 
@@ -97,7 +107,7 @@
     Dashboard del Jefe de Soporte
     <div style="float: right; margin-right: 20px;">
         <span th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Nombre Jefe</span>
-        <a th:href="@{/logout}" class="logout" style="margin-left: 15px;">Cerrar Sesión</a>
+        <a th:href="@{/logout}" class="logout">Cerrar Sesión</a>
     </div>
 </header>
 

@@ -145,5 +145,158 @@ VALUES
 'cliente3', 3);
 
 
+-- =========================================================
+-- 1) Crear incidencias variadas (últimos 5 días)
+--    - Algunas ABIERTO/EN_PROCESO (incluye atrasados)
+--    - Varias CERRADO con fecha_cierre (para reporte SLA)
+-- =========================================================
 
+INSERT INTO incidencia
+(codigo_ticket, id_cliente, id_canal, asunto, descripcion, id_estado, fecha_registro, fecha_cierre)
+VALUES
+-- HOY (abiertos/en proceso)
+('TCK-RPT-001',
+ (SELECT id_usuario FROM usuario WHERE username='cliente'  LIMIT 1),
+ (SELECT id_canal   FROM canal_contacto WHERE nombre='WEB' LIMIT 1),
+ 'No imprime en red', 'La impresora no responde en la red.', 
+ (SELECT id_estado  FROM estado_incidencia WHERE nombre='ABIERTO' LIMIT 1),
+ (NOW() - INTERVAL 2 HOUR),
+ NULL),
 
+('TCK-RPT-002',
+ (SELECT id_usuario FROM usuario WHERE username='cliente2' LIMIT 1),
+ (SELECT id_canal   FROM canal_contacto WHERE nombre='CORREO' LIMIT 1),
+ 'Error al iniciar sesión', 'El usuario no puede iniciar sesión.',
+ (SELECT id_estado  FROM estado_incidencia WHERE nombre='EN_PROCESO' LIMIT 1),
+ (NOW() - INTERVAL 6 HOUR),
+ NULL),
+
+-- ATRASADOS (más de 2 días en ABIERTO/EN_PROCESO)
+('TCK-RPT-003',
+ (SELECT id_usuario FROM usuario WHERE username='cliente3' LIMIT 1),
+ (SELECT id_canal   FROM canal_contacto WHERE nombre='WHATSAPP' LIMIT 1),
+ 'VPN no conecta', 'No conecta a la VPN desde hace días.',
+ (SELECT id_estado  FROM estado_incidencia WHERE nombre='ABIERTO' LIMIT 1),
+ (NOW() - INTERVAL 4 DAY),
+ NULL),
+
+('TCK-RPT-004',
+ (SELECT id_usuario FROM usuario WHERE username='cliente2' LIMIT 1),
+ (SELECT id_canal   FROM canal_contacto WHERE nombre='TELEFONO' LIMIT 1),
+ 'Lentitud en sistema', 'El sistema está lento en horas punta.',
+ (SELECT id_estado  FROM estado_incidencia WHERE nombre='EN_PROCESO' LIMIT 1),
+ (NOW() - INTERVAL 3 DAY),
+ NULL),
+
+-- CERRADOS (para reportes de tiempos / SLA)
+('TCK-RPT-005',
+ (SELECT id_usuario FROM usuario WHERE username='cliente' LIMIT 1),
+ (SELECT id_canal   FROM canal_contacto WHERE nombre='WEB' LIMIT 1),
+ 'Office no abre', 'No abre Word/Excel.',
+ (SELECT id_estado  FROM estado_incidencia WHERE nombre='CERRADO' LIMIT 1),
+ (NOW() - INTERVAL 1 DAY - INTERVAL 9 HOUR),
+ (NOW() - INTERVAL 1 DAY - INTERVAL 4 HOUR)),
+
+('TCK-RPT-006',
+ (SELECT id_usuario FROM usuario WHERE username='cliente2' LIMIT 1),
+ (SELECT id_canal   FROM canal_contacto WHERE nombre='WEB' LIMIT 1),
+ 'Cableado dañado', 'Se detecta daño físico de cable.',
+ (SELECT id_estado  FROM estado_incidencia WHERE nombre='CERRADO' LIMIT 1),
+ (NOW() - INTERVAL 2 DAY - INTERVAL 10 HOUR),
+ (NOW() - INTERVAL 2 DAY - INTERVAL 2 HOUR)),
+
+('TCK-RPT-007',
+ (SELECT id_usuario FROM usuario WHERE username='cliente3' LIMIT 1),
+ (SELECT id_canal   FROM canal_contacto WHERE nombre='CORREO' LIMIT 1),
+ 'WiFi inestable', 'Se desconecta cada cierto tiempo.',
+ (SELECT id_estado  FROM estado_incidencia WHERE nombre='CERRADO' LIMIT 1),
+ (NOW() - INTERVAL 3 DAY - INTERVAL 8 HOUR),
+ (NOW() - INTERVAL 3 DAY - INTERVAL 1 HOUR)),
+
+('TCK-RPT-008',
+ (SELECT id_usuario FROM usuario WHERE username='cliente' LIMIT 1),
+ (SELECT id_canal   FROM canal_contacto WHERE nombre='TELEFONO' LIMIT 1),
+ 'PC no enciende', 'El equipo no enciende.',
+ (SELECT id_estado  FROM estado_incidencia WHERE nombre='CERRADO' LIMIT 1),
+ (NOW() - INTERVAL 4 DAY - INTERVAL 6 HOUR),
+ (NOW() - INTERVAL 4 DAY - INTERVAL 1 HOUR)),
+
+('TCK-RPT-009',
+ (SELECT id_usuario FROM usuario WHERE username='cliente2' LIMIT 1),
+ (SELECT id_canal   FROM canal_contacto WHERE nombre='WEB' LIMIT 1),
+ 'Solicitud de instalación', 'Instalar software de diseño.',
+ (SELECT id_estado  FROM estado_incidencia WHERE nombre='CERRADO' LIMIT 1),
+ (NOW() - INTERVAL 5 DAY - INTERVAL 10 HOUR),
+ (NOW() - INTERVAL 5 DAY - INTERVAL 3 HOUR));
+
+-- =========================================================
+-- 2) Clasificación (tipo, prioridad, tiempo objetivo) para CERRADOS
+--    (Esto alimenta: Comparación Objetivo vs Real por Prioridad)
+-- =========================================================
+INSERT INTO clasificacion
+(id_incidencia, id_tipo, id_prioridad, tiempo_objetivo_horas, fecha_clasificacion)
+VALUES
+((SELECT id_incidencia FROM incidencia WHERE codigo_ticket='TCK-RPT-005'),
+ (SELECT id_tipo FROM tipo_incidencia WHERE nombre='Problema de Software' LIMIT 1),
+ (SELECT id_prioridad FROM prioridad WHERE nombre='Media' LIMIT 1),
+ 8,
+ CURDATE() - INTERVAL 1 DAY),
+
+((SELECT id_incidencia FROM incidencia WHERE codigo_ticket='TCK-RPT-006'),
+ (SELECT id_tipo FROM tipo_incidencia WHERE nombre='Fallo de Hardware' LIMIT 1),
+ (SELECT id_prioridad FROM prioridad WHERE nombre='Alta' LIMIT 1),
+ 4,
+ CURDATE() - INTERVAL 2 DAY),
+
+((SELECT id_incidencia FROM incidencia WHERE codigo_ticket='TCK-RPT-007'),
+ (SELECT id_tipo FROM tipo_incidencia WHERE nombre='Problema de Red' LIMIT 1),
+ (SELECT id_prioridad FROM prioridad WHERE nombre='Media' LIMIT 1),
+ 8,
+ CURDATE() - INTERVAL 3 DAY),
+
+((SELECT id_incidencia FROM incidencia WHERE codigo_ticket='TCK-RPT-008'),
+ (SELECT id_tipo FROM tipo_incidencia WHERE nombre='Fallo de Hardware' LIMIT 1),
+ (SELECT id_prioridad FROM prioridad WHERE nombre='Crítica' LIMIT 1),
+ 2,
+ CURDATE() - INTERVAL 4 DAY),
+
+((SELECT id_incidencia FROM incidencia WHERE codigo_ticket='TCK-RPT-009'),
+ (SELECT id_tipo FROM tipo_incidencia WHERE nombre='Requerimiento de Servicio' LIMIT 1),
+ (SELECT id_prioridad FROM prioridad WHERE nombre='Baja' LIMIT 1),
+ 16,
+ CURDATE() - INTERVAL 5 DAY);
+
+-- =========================================================
+-- 3) Asignación (para que en reporte diario aparezca técnico)
+--    Asignamos técnicos a algunos tickets (incluye cerrados y en proceso)
+-- =========================================================
+INSERT INTO asignacion
+(id_incidencia, id_tecnico, motivo, fecha_asignacion, activa)
+VALUES
+((SELECT id_incidencia FROM incidencia WHERE codigo_ticket='TCK-RPT-002'),
+ (SELECT id_usuario FROM usuario WHERE username='soporte' LIMIT 1),
+ 'Asignación para atención', NOW() - INTERVAL 5 HOUR, 1),
+
+((SELECT id_incidencia FROM incidencia WHERE codigo_ticket='TCK-RPT-004'),
+ (SELECT id_usuario FROM usuario WHERE username='soporte2' LIMIT 1),
+ 'Asignación para atención', NOW() - INTERVAL 3 DAY + INTERVAL 1 HOUR, 1),
+
+((SELECT id_incidencia FROM incidencia WHERE codigo_ticket='TCK-RPT-005'),
+ (SELECT id_usuario FROM usuario WHERE username='soporte' LIMIT 1),
+ 'Atención y cierre', NOW() - INTERVAL 1 DAY - INTERVAL 8 HOUR, 0),
+
+((SELECT id_incidencia FROM incidencia WHERE codigo_ticket='TCK-RPT-006'),
+ (SELECT id_usuario FROM usuario WHERE username='soporte2' LIMIT 1),
+ 'Atención y cierre', NOW() - INTERVAL 2 DAY - INTERVAL 9 HOUR, 0),
+
+((SELECT id_incidencia FROM incidencia WHERE codigo_ticket='TCK-RPT-007'),
+ (SELECT id_usuario FROM usuario WHERE username='soporte3' LIMIT 1),
+ 'Atención y cierre', NOW() - INTERVAL 3 DAY - INTERVAL 7 HOUR, 0),
+
+((SELECT id_incidencia FROM incidencia WHERE codigo_ticket='TCK-RPT-008'),
+ (SELECT id_usuario FROM usuario WHERE username='soporte' LIMIT 1),
+ 'Atención y cierre', NOW() - INTERVAL 4 DAY - INTERVAL 5 HOUR, 0),
+
+((SELECT id_incidencia FROM incidencia WHERE codigo_ticket='TCK-RPT-009'),
+ (SELECT id_usuario FROM usuario WHERE username='soporte3' LIMIT 1),
+ 'Atención y cierre', NOW() - INTERVAL 5 DAY - INTERVAL 9 HOUR, 0);

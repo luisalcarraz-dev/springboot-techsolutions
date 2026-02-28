@@ -18,13 +18,11 @@ public class IncidenciaController {
         this.incidenciaService = incidenciaService;
     }
 
-    // Mostrar formulario
     @GetMapping("/nuevo")
     public String mostrarFormulario(Model model, HttpSession session) {
 
         Usuario usuario = (Usuario) session.getAttribute("usuario");
 
-        // Si no hay login, manda a login (recomendado)
         if (usuario == null) {
             return "redirect:/login";
         }
@@ -35,7 +33,6 @@ public class IncidenciaController {
         return "registro-incidente";
     }
 
-    // Registrar incidencia y redirigir a la vista del ticket generado
     @PostMapping("/registrar")
     public String registrar(@ModelAttribute Incidencia incidencia, HttpSession session) {
 
@@ -45,16 +42,10 @@ public class IncidenciaController {
         }
 
         incidencia.setCliente(usuario);
-
-        // Guardar y recuperar el ticket con su ID
         Incidencia guardada = incidenciaService.registrarIncidencia(incidencia);
-        
-
-        // Mostrar ticket generado
         return "redirect:/incidencias/ticket/" + guardada.getIdIncidencia();
     }
 
-    // Mostrar ticket por id
     @GetMapping("/ticket/{id}")
     public String verTicket(@PathVariable Integer id, Model model, HttpSession session) {
 

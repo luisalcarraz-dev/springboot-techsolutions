@@ -1,4 +1,3 @@
-// src/main/java/com/TechSolutions.Soporte/Repository/UsuarioRepository.java
 package com.TechSolutions.Soporte.Repository;
 
 import com.TechSolutions.Soporte.model.Usuario;
@@ -10,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
-    Optional<Usuario> findByUsername(String username); // Ya lo tenías para Login
-    List<Usuario> findByRol_Nombre(String nombreRol); // Nuevo método para obtener técnicos
+    Optional<Usuario> findByUsername(String username);
+    List<Usuario> findByRol_Nombre(String nombreRol);
 }

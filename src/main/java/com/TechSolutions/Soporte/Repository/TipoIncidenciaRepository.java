@@ -1,4 +1,3 @@
-// src/main/java/com/TechSolutions.Soporte/Repository/TipoIncidenciaRepository.java
 package com.TechSolutions.Soporte.Repository;
 
 import com.TechSolutions.Soporte.model.TipoIncidencia;
@@ -7,5 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TipoIncidenciaRepository extends JpaRepository<TipoIncidencia, Integer> {
-    // Métodos si los necesitas
 }

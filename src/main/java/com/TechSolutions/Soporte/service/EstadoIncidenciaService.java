@@ -1,4 +1,3 @@
-// src/main/java/com/TechSolutions.Soporte/service/EstadoIncidenciaService.java
 package com.TechSolutions.Soporte.service;
 
 import com.TechSolutions.Soporte.Repository.EstadoIncidenciaRepository;

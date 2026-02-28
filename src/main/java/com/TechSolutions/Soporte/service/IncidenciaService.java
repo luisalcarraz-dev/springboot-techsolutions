@@ -49,7 +49,6 @@ public class IncidenciaService {
     @Transactional
     public Incidencia registrarIncidencia(Incidencia incidencia) {
 
-        // Generar código de ticket único
         String codigo;
         do {
             codigo = "TCK-" + UUID.randomUUID()
@@ -60,7 +59,6 @@ public class IncidenciaService {
 
         incidencia.setCodigoTicket(codigo);
 
-        // Estado inicial: ABIERTO (ID 1)
         Optional<EstadoIncidencia> estadoAbierto = estadoIncidenciaRepository.findById(1);
         if (estadoAbierto.isPresent()) {
             incidencia.setEstado(estadoAbierto.get());
@@ -68,7 +66,6 @@ public class IncidenciaService {
             throw new RuntimeException("Estado 'ABIERTO' (ID 1) no encontrado en la base de datos.");
         }
 
-        // Canal de contacto: WEB (ID 1)
         Optional<CanalContacto> canalWeb = canalContactoRepository.findById(1);
         if (canalWeb.isPresent()) {
             incidencia.setCanalContacto(canalWeb.get());
@@ -76,13 +73,10 @@ public class IncidenciaService {
             throw new RuntimeException("Canal de Contacto 'WEB' (ID 1) no encontrado en la base de datos.");
         }
 
-        // Fecha actual
         incidencia.setFechaRegistro(LocalDateTime.now());
 
-        // ✅ Guardar incidencia
         Incidencia guardada = incidenciaRepository.save(incidencia);
 
-        // ✅ EVENTO HISTORIAL: REGISTRO
         historialService.registrarEvento(
                 guardada,
                 guardada.getCliente(),

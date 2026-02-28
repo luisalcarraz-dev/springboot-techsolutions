@@ -1,4 +1,3 @@
-// src/main/java/com/TechSolutions/Soporte/Controller/LoginController.java
 package com.TechSolutions.Soporte.Controller;
 
 import com.TechSolutions.Soporte.model.Usuario;
@@ -17,7 +16,7 @@ public class LoginController {
 
     @GetMapping("/login")
     public String login() {
-        return "login"; // Nombre de tu plantilla Thymeleaf para el login
+        return "login";
     }
 
     @PostMapping("/login")

@@ -1,4 +1,3 @@
-// src/main/java/com/TechSolutions/Soporte/Repository/IncidenciaRepository.java
 package com.TechSolutions.Soporte.Repository;
 
 import com.TechSolutions.Soporte.model.Incidencia;
@@ -21,21 +20,19 @@ public interface IncidenciaRepository extends JpaRepository<Incidencia, Integer>
 
     Incidencia findByIdIncidenciaAndCliente_IdUsuario(Integer idIncidencia, Integer idCliente);
 
-    // Incidencias asignadas a un técnico
+
     @Query("SELECT i FROM Incidencia i JOIN i.asignacion a WHERE a.tecnico.idUsuario = :tecnicoId")
     List<Incidencia> findIncidenciasByTecnicoId(@Param("tecnicoId") Integer tecnicoId);
 
-    // ✅ (REEMPLAZO) Incidencias registradas dentro de un día/rango
+
     @Query("SELECT i FROM Incidencia i WHERE i.fechaRegistro >= :inicio AND i.fechaRegistro < :fin")
     List<Incidencia> findByFechaRegistroBetween(@Param("inicio") LocalDateTime inicio,
                                                 @Param("fin") LocalDateTime fin);
 
-    // ✅ (REEMPLAZO) Incidencias cerradas dentro de un día/rango
     @Query("SELECT i FROM Incidencia i WHERE i.fechaCierre >= :inicio AND i.fechaCierre < :fin AND i.estado.nombre = 'CERRADO'")
     List<Incidencia> findCerradasByFechaCierreBetween(@Param("inicio") LocalDateTime inicio,
                                                       @Param("fin") LocalDateTime fin);
 
-    // Incidencias cerradas por prioridad
     @Query("SELECT i FROM Incidencia i JOIN i.clasificacion c " +
            "WHERE c.prioridad.idPrioridad = :prioridadId AND i.estado.nombre = 'CERRADO'")
     List<Incidencia> findIncidenciasCerradasByPrioridad(@Param("prioridadId") Integer prioridadId);

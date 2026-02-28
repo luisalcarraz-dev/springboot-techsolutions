@@ -95,7 +95,7 @@ public class TecnicoService {
      */
     @Transactional
     public void guardarOrdenTrabajoYActualizarIncidencia(Integer idIncidencia, Integer idTecnico, OrdenTrabajo ordenTrabajo, Integer nuevoEstadoId, boolean solicitarCierre) {
-        // 1. Validar la incidencia y la asignación
+        
         Incidencia incidencia = incidenciaRepository.findById(idIncidencia)
                 .orElseThrow(() -> new RuntimeException("Incidencia no encontrada."));
 
@@ -103,64 +103,49 @@ public class TecnicoService {
             throw new RuntimeException("No tiene permisos para modificar esta incidencia.");
         }
 
-        // 2. Obtener o crear la Orden de Trabajo
+
         OrdenTrabajo ordenExistente = ordenTrabajoRepository.findByAsignacion_IdAsignacion(incidencia.getAsignacion().getIdAsignacion()).orElse(new OrdenTrabajo());
 
-        // Mapear los campos del formulario a la Orden de Trabajo
-        ordenExistente.setAsignacion(incidencia.getAsignacion()); // Asegurar la relación
+        ordenExistente.setAsignacion(incidencia.getAsignacion()); 
         ordenExistente.setActividades(ordenTrabajo.getActividades());
         ordenExistente.setHerramientas(ordenTrabajo.getHerramientas());
         ordenExistente.setObservaciones(ordenTrabajo.getObservaciones());
-        // Solo actualizar fechaInicio si es una nueva orden de trabajo
         if (ordenExistente.getIdOrden() == null) {
             ordenExistente.setFechaInicio(LocalDateTime.now());
         }
 
-        // 3. Guardar la Orden de Trabajo
         ordenTrabajoRepository.save(ordenExistente);
-
-        // 4. Actualizar el estado de la incidencia
         Optional<EstadoIncidencia> nuevoEstado = estadoIncidenciaRepository.findById(nuevoEstadoId);
         if (nuevoEstado.isPresent()) {
             incidencia.setEstado(nuevoEstado.get());
         } else {
             throw new RuntimeException("Estado de incidencia no válido.");
         }
-        
-        // Lógica adicional si se presiona "Solicitar Cierre"
         if (solicitarCierre) {
-            // Si el técnico selecciona "CERRADO" y pulsa "Solicitar Cierre", la incidencia se cerrará.
-            // Podrías añadir lógica aquí para enviar notificaciones o cambiar el estado a "PENDIENTE_APROBACION_CIERRE"
-            if ("CERRADO".equals(nuevoEstado.get().getNombre())) {
-                ordenExistente.setFechaFin(LocalDateTime.now()); // Si se cierra, registra la fecha de fin
-                ordenTrabajoRepository.save(ordenExistente); // Guardar la orden de trabajo actualizada con fecha de fin
+              if ("CERRADO".equals(nuevoEstado.get().getNombre())) {
+                ordenExistente.setFechaFin(LocalDateTime.now()); 
+                ordenTrabajoRepository.save(ordenExistente); 
             }
         }
 
-        incidenciaRepository.save(incidencia); // Guardar la incidencia con el nuevo estado
+        incidenciaRepository.save(incidencia); 
     }
     
-    // --- NUEVO MÉTODO: Solicitar cierre de incidencia ---
     @Transactional
     public Incidencia solicitarCierreIncidencia(Integer idIncidencia, Integer idTecnico) {
         Incidencia incidencia = incidenciaRepository.findById(idIncidencia)
                 .orElseThrow(() -> new RuntimeException("Incidencia no encontrada."));
 
-        // Verificar que el técnico está asignado a esta incidencia
+        
         if (incidencia.getAsignacion() == null || !incidencia.getAsignacion().getTecnico().getIdUsuario().equals(idTecnico)) {
             throw new RuntimeException("El técnico no está asignado a esta incidencia.");
         }
 
-        // Obtener el estado 'PENDIENTE_CONFORMIDAD_CLIENTE'
+        
         EstadoIncidencia estadoPendienteConformidad = estadoIncidenciaRepository.findByNombre("PENDIENTE_CONFORMIDAD_CLIENTE")
                 .orElseThrow(() -> new RuntimeException("Estado 'PENDIENTE_CONFORMIDAD_CLIENTE' no encontrado."));
-
-        // Actualizar el estado de la incidencia
+       
         incidencia.setEstado(estadoPendienteConformidad);
-        // Opcional: Podrías registrar la fecha de solicitud de cierre en fechaCierre,
-        // y luego la fecha final de cierre cuando el cliente dé conformidad.
-        // incidencia.setFechaCierre(LocalDate.now()); // O considera un nuevo campo fechaSolicitudCierre
-
         return incidenciaRepository.save(incidencia);
     }
 }

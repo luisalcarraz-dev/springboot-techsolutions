@@ -65,7 +65,18 @@
 </header>
 
 <div class="container">
-
+	
+	<div style="margin-bottom: 20px;">
+	    <a th:href="@{/soporte/home}" 
+	       style="display:inline-block;
+	              padding:8px 15px;
+	              background-color:#64748b;
+	              color:white;
+	              text-decoration:none;
+	              border-radius:4px;">
+	        Volver
+	    </a>
+	</div>
     <div class="card">
         <h2>Tiempo Promedio de Atención (Horas) - Últimos 5 días</h2>
         <canvas id="tiempoAtencion"></canvas>

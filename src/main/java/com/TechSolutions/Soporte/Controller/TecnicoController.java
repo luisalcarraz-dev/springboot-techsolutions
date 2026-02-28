@@ -1,4 +1,3 @@
-// src/main/java/com/TechSolutions.Soporte/Controller/TecnicoController.java
 package com.TechSolutions.Soporte.Controller;
 
 import com.TechSolutions.Soporte.model.Incidencia;
@@ -102,12 +101,9 @@ public class TecnicoController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al guardar el avance: " + e.getMessage());
         }
 
-        // Redirigir al dashboard del técnico
         return "redirect:/tecnico/home";
     }
     
-
-    // --- NUEVO MÉTODO: Solicitar cierre ---
     @PostMapping("/ticket/{idIncidencia}/solicitar-cierre")
     public String solicitarCierre(@PathVariable Integer idIncidencia,
                                   HttpSession session,
@@ -125,6 +121,6 @@ public class TecnicoController {
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al solicitar cierre: " + e.getMessage());
         }
-        return "redirect:/tecnico/home"; // O redirige a la vista de detalle del ticket
+        return "redirect:/tecnico/home";
     }
 }

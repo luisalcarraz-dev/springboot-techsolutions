@@ -1,4 +1,3 @@
-// src/main/java/com/TechSolutions.Soporte/service/ClienteService.java
 package com.TechSolutions.Soporte.service;
 
 import com.TechSolutions.Soporte.Repository.IncidenciaRepository;
@@ -75,8 +74,6 @@ public class ClienteService {
         return incidenciaRepository.save(incidencia);
     }
 
-    // --- NUEVOS MÉTODOS PARA EL DASHBOARD DEL CLIENTE ---
-
     /**
      * Obtiene estadísticas para el dashboard del cliente.
      * @param idCliente ID del cliente.
@@ -99,8 +96,6 @@ public class ClienteService {
         estadisticas.put("cerradas", incidenciasCliente.stream()
                 .filter(i -> i.getEstado() != null && "CERRADO".equals(i.getEstado().getNombre()))
                 .count());
-        // Puedes añadir más estadísticas si lo necesitas
-
         return estadisticas;
     }
 
@@ -111,11 +106,6 @@ public class ClienteService {
      * @return Lista de las últimas incidencias del cliente.
      */
     public List<Incidencia> obtenerUltimosTickets(Integer idCliente, int limit) {
-        // Asumo que IncidenciaRepository tiene un método para esto,
-        // o puedes obtener todas y luego limitar/ordenar.
-        // Por ejemplo, si tienes un método en el repo:
-        // return incidenciaRepository.findTopNByCliente_IdUsuarioOrderByIdIncidenciaDesc(idCliente, limit);
-        // Si no, puedes hacer esto:
         return incidenciaRepository.findByCliente_IdUsuarioOrderByIdIncidenciaDesc(idCliente)
                 .stream()
                 .limit(limit)

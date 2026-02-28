@@ -180,7 +180,6 @@ public class SoporteService {
         return incidenciaRepository.save(incidencia);
     }
 
-    // ✅ Reporte diario por rango (inicio del día -> inicio del siguiente día)
     public Map<String, Long> getResumenDiarioIncidencias(LocalDate fechaReporte) {
 
         LocalDateTime inicio = fechaReporte.atStartOfDay();
@@ -218,7 +217,6 @@ public class SoporteService {
         return incidenciaRepository.findByFechaRegistroBetween(inicio, fin);
     }
 
-    // ✅ Promedio por día usando fechaCierre LocalDateTime (por rango del día)
     public Map<String, List<?>> getTiempoPromedioAtencionPorDia(int numDias) {
         List<String> labels = new ArrayList<>();
         List<Double> data = new ArrayList<>();
@@ -301,11 +299,9 @@ public class SoporteService {
         Usuario nuevoTecnico = usuarioRepository.findById(nuevoTecnicoId)
                 .orElseThrow(() -> new RuntimeException("Técnico no encontrado."));
 
-        // Cambiar el técnico en la asignación
         Asignacion asig = inc.getAsignacion();
         asig.setTecnico(nuevoTecnico);
 
-        // (Opcional) guardar observación del jefe en la orden de trabajo si existe
         OrdenTrabajo ot = ordenTrabajoRepository
                 .findByAsignacion_IdAsignacion(asig.getIdAsignacion())
                 .orElse(null);
@@ -325,7 +321,6 @@ public class SoporteService {
         Incidencia inc = incidenciaRepository.findById(idIncidencia)
                 .orElseThrow(() -> new RuntimeException("Incidencia no encontrada."));
 
-        // Cambia el estado (ajusta el nombre exacto al que tengas en tu tabla estado_incidencia)
         EstadoIncidencia estado = estadoIncidenciaRepository.findByNombre("APOYO_SOLICITADO")
                 .orElseThrow(() -> new RuntimeException("Estado 'APOYO_SOLICITADO' no existe."));
 
@@ -337,7 +332,7 @@ public class SoporteService {
     public void guardarObservacionesJefe(Integer idIncidencia, String observacionesJefe) {
 
         if (observacionesJefe == null || observacionesJefe.trim().isEmpty()) {
-            return; // no guardar vacío
+            return;
         }
 
         Incidencia inc = incidenciaRepository.findById(idIncidencia)

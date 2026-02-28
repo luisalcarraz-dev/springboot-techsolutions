@@ -1,4 +1,3 @@
-// src/main/java/com/TechSolutions.Soporte/Controller/SoporteController.java
 package com.TechSolutions.Soporte.Controller;
 
 import com.TechSolutions.Soporte.model.Incidencia;
@@ -73,8 +72,6 @@ public class SoporteController {
             redirectAttributes.addFlashAttribute("errorMessage", "Ticket no encontrado.");
             return "redirect:/soporte/home";
         }
-
-        // Traer orden de trabajo si existe (para mostrar solución)
         OrdenTrabajo ordenTrabajo = null;
         if (ticket.getAsignacion() != null) {
             ordenTrabajo = tecnicoService.obtenerOrdenTrabajoPorAsignacionId(
@@ -244,7 +241,6 @@ public class SoporteController {
         return "soporte/reporte-diario";
     }
 
-    // --- Nuevo método para Reporte de Tiempos de Atención ---
     @GetMapping("/reporte-tiempo")
     public String reporteTiempo(HttpSession session, Model model) {
         String rol = (String) session.getAttribute("rol");
@@ -254,21 +250,17 @@ public class SoporteController {
             return "redirect:/login";
         }
 
-        // Datos para el gráfico de Tiempo Promedio de Atención
-        int numDias = 5; // Por ejemplo, los últimos 5 días laborales
+        int numDias = 5; 
         Map<String, List<?>> tiempoPromedioData = soporteService.getTiempoPromedioAtencionPorDia(numDias);
         model.addAttribute("tiempoAtencionLabels", tiempoPromedioData.get("labels"));
         model.addAttribute("tiempoAtencionData", tiempoPromedioData.get("data"));
 
-        // Datos para el gráfico de Comparación Tiempo Objetivo vs Real
         Map<String, Map<String, Double>> comparacionData = soporteService.getComparacionTiempoObjetivoVsRealPorPrioridad();
         List<String> prioridadesLabels = new ArrayList<>();
         List<Double> objetivoData = new ArrayList<>();
         List<Double> realData = new ArrayList<>();
 
-        // Asegurar un orden consistente y manejar prioridades que no existen en los datos
-        // Puedes obtener las prioridades de la DB para garantizar el orden
-        List<Prioridad> todasPrioridades = soporteService.findAllPrioridades(); // Asumo que este método existe y devuelve Prioridad
+        List<Prioridad> todasPrioridades = soporteService.findAllPrioridades(); 
         for (Prioridad prioridad : todasPrioridades) {
             String nombrePrioridad = prioridad.getNombre();
             prioridadesLabels.add(nombrePrioridad);
